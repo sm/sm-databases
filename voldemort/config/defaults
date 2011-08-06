@@ -1,0 +1,4 @@
+version=0.90
+base_url=http://cloud.github.com/downloads/voldemort/voldemort
+archive_format=tar.gz
+website_url=http://project-voldemort.com/

@@ -1,0 +1,3 @@
+version=9.0.4
+user=postgres
+archive_format=tar.bz2

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+elasticsearch_configure()
+{
+  : # Beautifully, nothing to do here :)
+}
+
+elasticsearch_build()
+{
+  : # Nothing to do here, either!
+}
+
+elasticsearch_install()
+{
+  local _path _paths _file _files
+
+  _paths=($( find "${source_path}/${package_dir}" -type d ))
+  for _path in "${_paths[@]}"
+  do
+    ensure_paths_exist "${install_path}${_path##${source_path}/${package_dir}}"
+  done
+
+  _files=($( find "${source_path}/${package_dir}" -type f ))
+  for _file in "${_files[@]}"
+  do
+    cp -f "${_file}" "${install_path}${_file##${source_path}/${package_dir}}"
+  done
+}
+

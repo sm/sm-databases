@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+
+# TODO: deal with mysql version_greater_than "5.5", eg. cmake etc...
+# This function must: configure, build, install to ${install_path}
+# TODO: adjust this for new cmake install method.
+# http://dev.mysql.com/doc/refman/5.5/en/source-configuration-options.html
+# http://dev.mysql.com/doc/refman/5.5/en/installing-source-distribution.html
+
+mysql_initialize()
+{
+  user_create_if_missing "${package_user}"
+
+  mysql_initdb
+
+  mysql_init_script
+
+  mysql_conf_d
+
+  log "
+  Installation and configuration of mysql is now complete.
+
+  * mysql has been installed to $install_path
+  * mysql configuration and data files will are in $service_data_path
+  * You can control the mysql server via the bdsm mysql extension'
+  * The mysql superuser is '$package_user', no password.
+  * Use /etc/conf.d/mysql.conf for server startup customization.
+
+"
+}
+
+mysql_initdb()
+{
+  log "Initializing mysql data directory in $service_data_path"
+
+  ensure_paths_exist "${service_data_path%\/*}"
+
+  chown_paths --recursive "$package_user" "${service_data_path%\/*}"
+
+  # --srcdir=\"${source_path}/${package_name}-${package_version}\"
+  export PATH="${install_path}/bin:$PATH"
+
+  if user_is_root
+  then
+    if user_run_as "${package_user}" \
+      "${install_path}/bin/mysql_install_db --user=\"${package_user}\" --basedir=\"${install_path}\" --datadir=${service_data_path} "
+    then
+      log "Successfully initialized the database at ${service_data_path}"
+    else
+      warn "There was an error ($?) initializing the database at ${service_data_path}"
+    fi
+  else
+    if ${install_path}/bin/mysql_install_db --user=\"${package_user}\" \
+      --basedir=\"${install_path}\" --datadir=${service_data_path}
+    then
+      log "Successfully initialized the database at ${service_data_path}"
+    else
+      warn "There was an error ($?) initializing the database at ${service_data_path}"
+    fi
+  fi
+
+  mysql_postinstall
+}
+
+mysql_postinstall()
+{
+  local file
+
+  log "Configuring mysql server."
+
+  # TODO: Is this not done in package_install ??? vvv
+  link --force "${service_data_path}" to "${service_data_path%\/*}/data"
+
+  if file_is_nonempty "/etc/mysql/my.cnf"
+  then
+    log "Skipping /etc/mysql/my.cnf as it already exists, use bdsm mysql configure to override later."
+  else
+    # TODO: Determine which .cnf file to grab based on system resources.
+    file="${source_path}/${package_dir}/support-files/my-medium.cnf"
+    if file_is_nonempty "${file}"
+    then
+      log "Installing my.cnf to /etc/mysql"
+      ensure_paths_exist "/etc/mysql"
+      copy_file --force "${file}" to "/etc/mysql/my.cnf"
+    else
+      error "${file} missing, not setting up /etc/mysql/my.cnf"
+    fi
+  fi
+
+  log "\nSymlinking $install_path to $prefix_path/mysql"
+
+  remove_paths "$prefix_path/mysql"
+
+  ensure_paths_exist "$service_data_path" "$log_path" "/etc/mysql/"
+
+  chown_paths --recursive "$package_user" "$service_data_path"
+
+  chmod_paths --recursive 0700 "$service_data_path"
+
+  mysql_initialize
+
+}
+
+mysql_init_script()
+{
+  log "Installing mysql init script"
+  install_template "mysql/mysql" to "${init_scripts_path}/mysql" mode 0755
+}
+
+mysql_conf_d()
+{
+  log "Installing mysql conf.d script"
+  install_template "mysql/mysql.conf.d" to "${confd_path}/mysql.conf" mode 0644
+}
+
+mysql_upgrade()
+{
+  #  First do an install
+  mysql_install
+
+  # Then do the upgrade parts
+  # TODO: Upgrade code
+  # move and symlink to preserve the old mysql.conf, pg_hba.conf files
+  # upgrade / move databases from old system.
+}
+
+mysql_uninstall()
+{
+  remove_paths \
+    "${prefix_path}/${package_name}" \
+    "${prefix_path}/${package_name}-${package_version}"
+
+  remove_files \
+    /etc/profile.d/mysql.sh \
+    /etc/ld.so.conf.d/mysql.conf \
+    "${init_scripts_path}/mysql"
+
+  user_delete "${package_user}"
+
+  if os_is_darwin ; then
+    remove_files \
+      "/usr/local/mysql"
+
+    paths=(
+    /usr/local/mysql* \
+      /Library/StartupItems/MySQLCOM \
+      /Library/PreferencePanes/My* \
+      /Library/Reciepts/mysql* \
+      /Library/Reciepts/MySQL* \
+      /var/db/receipts/com.mysql.mysql* \
+      /usr/local/mysql*
+    )
+
+    remove_paths ${paths[@]}
+
+    sed -i -e 's#^MYSQLCOM.*$##' /etc/hostconfig
+  fi
+
+  log "Removal of ${package_name} complete."
+}

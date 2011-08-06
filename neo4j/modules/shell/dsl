@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+neo4j_configure()
+{
+  true
+}
+
+neo4j_build()
+{
+  true
+}
+
+neo4j_install()
+{
+  copy_paths --force from "${source_path}/${package_dir}/" to "${install_path}"
+}
+
+neo4j_setup()
+{
+  replace_content "^org.neo4j.server.database.location=.*" \
+    with "org.neo4j.server.database.location=${service_db_path}/active/graph.db" \
+    in "${install_path}/${package_version}/conf/neo4j-server.properties"
+}

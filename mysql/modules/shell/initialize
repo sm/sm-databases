@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+package_definition \
+  base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
+  target_path "${prefix_path}/${package_name}-${package_version}"
+
+# TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
+#         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
+
+if user_is_root
+then
+  sudo=""
+
+  if [[ -d /etc/profile.d ]]
+  then
+    profiles=(/etc/profile.d/mysql.sh)
+  else
+    if [[ -f /etc/bash.bashrc ]]
+    then
+      profiles=(/etc/bash.bashrc)
+    else
+      profiles=(/etc/bashrc)
+    fi
+  fi
+else
+  sudo="sudo"
+
+  : \
+    "${profiles:=("$HOME/.bash_profile" "$HOME/.bashrc")}"
+fi
+
+log_path="$service_data_path/log"
+
+if [[ "$action" = *install ]]
+then
+  # TODO: configure flags per OS.
+  # http://dev.mysql.com/doc/refman/5.1/en/source-configuration-options.html
+  configure_flags=(
+    --prefix="${install_path}"
+    --localstatedir="${service_data_path}"
+    --enable-assembler
+    --with-mysqld-ldflags=-all-static
+    --with-charset=utf8
+    --with-collation=utf8_general_ci
+  )
+  export CFLAGS="-O3"
+  export CXX=gcc
+  export CXXFLAGS="-O3 -felide-constructors -fno-exceptions -fno-rtti"
+fi
+
+timestamp="$(date +"%Y-%m-%dT%H:%M")"
+

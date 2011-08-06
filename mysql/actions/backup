@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# TODO:
+#   Ability to backup either:
+#   - A list of one or more databases
+#   - A list of one or more tables for a given database
+#   - All databases for specified server, localhost by default.
+

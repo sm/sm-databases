@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+if command_exists vim
+then
+  ${EDITOR:=vim}
+else
+  ${EDITOR:=vi}
+fi
+
+${EDITOR} "${service_config_path}/${extension}.conf"
+

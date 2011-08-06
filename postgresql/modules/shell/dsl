@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+
+postgresql_postinstall()
+{
+  user_create_if_missing "$package_user"
+
+  postgresql_init_script
+  postgresql_conf_d
+  postgresql_kernel_parameters
+
+  log "
+  Installation and configuration of postgresql is now complete.
+
+  * postgresql has been installed to $install_path
+  * postgresql configuration and data files will are in $service_data_path
+  * You can control the postgresql server via the bdsm postgresql extension'
+  * The postgersql superuser is '$package_user', no password.
+  * Use /etc/conf.d/postgresql.conf for server startup customization.
+
+  "
+}
+
+postgresql_conf_update()
+{
+
+  replace_content "^.*data_directory.*" \
+    with "data_directory = '${service_db_path}/active/data'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*hba_file.*" \
+    with "hba_file = '${service_db_path}'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*ident_file.*" \
+    with "ident_file = '${service_pid_file}'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*listen_address.*" \
+    with "listen_address = '*'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*max_connections.*" \
+    with "max_connections = '50'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*unix_socket_directory.*" \
+    with "unix_socket_directory = '${service_pid_path}'" \
+    in "${service_data_path}/postgresql.conf"
+
+  replace_content "^.*shared_buffers.*" \
+    with "shared_buffers = '64MB'" \
+    in "${service_data_path}/postgresql.conf"
+}
+
+postgresql_kernel_parameters()
+{
+  true # TODO: Cross the finish line!!!
+}
+
+postgresql_database_setup()
+{
+  log "Initializing postgresql data directory in $service_data_path"
+  ensure_paths_exist "${service_data_path}"
+  chown_paths --recursive "$package_user:$package_user" "${service_data_path}"
+
+  command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$package_user"
+
+  copy_files --force to "${service_data_path}" "${install_path}"/share/*.sample
+
+  if user_is_root
+  then
+    user_run_as "${package_user}" "${command}"
+  else
+    "${command}"
+  fi
+
+  chown_paths --recursive "$package_user:$package_user" "${service_data_path}"
+  chmod_paths --recursive 0700 "${service_data_path}"
+}
+
+postgresql_service_setup()
+{
+  local file _entries
+  log "Configuring postgresql server."
+
+  ensure_paths_exist "${service_data_path}" "$log_path"
+
+  postgresql_database_setup
+
+  link --force "${service_data_path}" to "${data_base_path}/active"
+
+  log "service_data_path: ${service_data_path}"
+  for file in postgresql pg_hba pg_ident recovery
+  do
+    if file_is_empty_or_missing "${service_data_path}/${file}.conf"
+    then
+      if file_is_missing "$service_data_path/${file}.conf.sample"
+      then
+        log "Missing $service_data_path/${file}.conf.sample, skipping."
+        continue
+      fi
+      log "Installing ${file}.conf to ${service_data_path}/"
+
+      copy_file "$service_data_path/${file}.conf.sample" \
+        to "$service_data_path/${file}.conf"
+
+      if file_is_missing "${service_config_path}/${file}.conf"
+      then
+        link "$service_data_path/${file}.conf" \
+          to "${service_config_path}/${file}.conf"
+      fi
+    fi
+  done
+
+  postgresql_conf_update
+
+  chown_paths --recursive "$package_user" "$data_base_path"
+
+  find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
+  find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
+}
+
+postgresql_init_script()
+{
+  log "Installing Postgresql init script"
+  install_template "postgresql/postgresql" to "${init_scripts_path}/postgresql" mode 0755
+}
+
+postgresql_conf_d()
+{
+  log "Installing Postgresql conf.d script"
+
+  ensure_paths_exist "${confd_path}"
+
+  install_template "postgresql/postgresql.conf.d" \
+    to "${confd_path}/postgresql.conf" \
+    mode 0644
+
+  seed_template "/etc/conf.d/postgresql.conf" \
+    packages_path "${packages_path}" \
+    service_data_path "${service_data_path}"
+}
+
+postgresql_preconfigure()
+{
+  if [[ "$action" = *install ]]
+  then
+    configure_flags=(
+      --prefix="${install_base_path}/${package_version}"
+      --datadir="${service_data_path}"
+      --with-openssl
+      --enable-shared
+    )
+
+    if os_is_darwin
+    then
+      configure_flags[${#configure_flags[@]}]="--with-bonjour"
+    fi
+
+    export CFLAGS='-O2'
+  fi
+}
+
+# TODO: Enable this at the service level.
+postgresql_reload()
+{
+  log "Reload PostgreSQL Server configuration"
+
+  user_run_as "${service_user}" "$control reload -D '${service_data_path}' -s"
+}
+

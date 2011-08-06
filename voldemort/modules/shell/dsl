@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+voldemort_build()
+{
+  if command_exists ant
+  then
+    ant
+  else
+    error "ant is required, please install the ant tool and try again."
+  fi
+}
+
+voldemort_install()
+{
+  local _target="${install_base_path}/${package_version}"
+
+  copy_paths "${source_path}/${package_dir}/" to "${_target}"
+}
+

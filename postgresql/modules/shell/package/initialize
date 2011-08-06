@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+package_definition \
+  base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
+
+if user_is_root
+then
+  read_default user prefix package
+  if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
+  then
+    package_user="postgres"
+  fi
+else
+  package_user="$USER"
+  prefix_path="$HOME/.bdsm"
+fi
+

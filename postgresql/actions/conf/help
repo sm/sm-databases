@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+description "Extension for managing ${extension} (${website_url})."
+
+action "edit" "Opens ${extension}.conf for ${package_name} ${package_version}"\
+  "in defined EDITOR or vi if undefined.."
+
+show_help usage
+
