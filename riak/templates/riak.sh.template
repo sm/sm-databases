@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -s /etc/conf.d/riak.conf ] ; then
+  . /etc/conf.d/riak.conf
+  PATH="$PATH:${prefix_path}/bin"
+fi

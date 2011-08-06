@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+description "Extension for managing ${extension} (${website_url})."
+
+action "package install" "Installs ${package_name} ${package_version}."
+action "package uninstall" "Installs ${package_name} ${package_version}."
+
+action "service [action]" "Control ${extension} service."
+action "server [action]" "Work with ${extension} server configurations."
+action "[namespace] help" "Display help for namespaces ${extension} {service,server,package,conf}."
+
+show_help usage
+

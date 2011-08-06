@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+package_install()
+{
+  display_extension_licence
+
+  log "
+
+  Message:
+
+  I am wayneeseguin in #rvm on irc.freenode.net and I am happy to discuss
+  improving this script, or field questions.
+
+  This script will now:
+
+  * Install ${package_name}-${package_version} to $install_path
+  * Put init script in place
+  * Create and initialize data directory
+  * Setup profile.d script adding riak binaries to the path
+  * Add conf.d file allowing for server customization
+
+  "
+
+  load cli
+
+
+  ensure_paths_exist "${source_path}"
+
+  enter "${source_path}"
+
+  log "Fetching ${package_name} ${package_version}"
+  package_fetch
+
+  enter "${package_dir}"
+
+  make rel
+
+  riak_install
+  # Now to install...
+
+  user_create_if_missing "$package_user"
+
+  riak_initdb
+
+  riak_init_script
+
+  riak_profile_d
+
+  riak_conf_d
+
+  log "
+  Installation and configuration of riak is now complete.
+
+  * riak has been installed to $install_path
+  * riak configuration and data files will are in $data_path
+  * You can control the riak server via the bdsm riak extension'
+  * The riak superuser is '$package_user', no password.
+  * Use /etc/conf.d/riak.conf for server startup customization.
+
+  "
+
+}
+riak_install()
+{
+  (
+  enter rel/riak
+
+  directories=($(find . -mindepth 1 -maxdepth 1 -type d))
+  copy_paths to "${install_path}/" "${directories[@]}"
+  )
+
+  (
+  enter rel/files
+
+  copy_files to "/etc/${package_name}" app.config  vm.args
+
+  copy_files to "${install_path}/bin" riak riak-admin
+
+  erts_path="$(find "${install_path}/" -mindepth 1 -maxdepth 1 -iname "erts-*" -type d)"
+
+  copy_files to "${erts_path}/bin" nodetool erl
+  )
+
+  # TODO: install man pages from doc/man/man1/*
+}
+
+riak_initdb()
+{
+  log "Initializing riak data directory in $data_path"
+
+  ensure_paths_exist "${data_path%\/*}"
+
+  chown_paths_recursively "$package_user" "${data_path%\/*}"
+
+  # TODO: how do you initialize a riak DB?
+  command="${install_path}/bin/riak --user=\"${package_user}\" --basedir=\"${install_path}\" --datadir=${data_path} "
+
+  export PATH="${install_path}/bin:$PATH"
+
+  if user_is_root
+  then
+    user_run_as "${package_user}" "${command}"
+  else
+    "${command}"
+  fi
+
+  riak_configure
+}
+
+riak_configure()
+{
+  local file
+
+  log "Configuring ${package_name} server."
+
+  link --force "${data_path}" to "${data_path%\/*}/data"
+
+  # TODO: Determine which .cnf file to grab based on system resources.
+  file="${source_path}/${package_dir}/rel/riak/etc/app.config"
+  if [[ -s "${file}" ]] ; then
+    log "Installing ${file//*\/} to /etc/${package_name}"
+    cp -f "${file}" "/etc/${package_name}/${file//*\/}"
+  else
+    log "ERROR: ${file} missing, not setting up /etc/${package_name}/${file//*\/}"
+  fi
+
+  file="${source_path}/${package_dir}/rel/riak/etc/vm.args"
+  if [[ -s "${file}" ]] ; then
+    log "Installing ${file//*\/} to /etc/${package_name}"
+    cp -f "${file}" "/etc/${package_name}/${file//*\/}"
+  else
+    log "ERROR: ${file} missing, not setting up /etc/${package_name}/${file//*\/}"
+  fi
+
+  log "\nSymlinking $install_path to $prefix_path/${package_name}"
+
+  remove_paths "$prefix_path/${package_name}"
+
+  link "$install_path" to "$prefix_path/${package_name}"
+
+  ensure_paths_exist "$data_path" "$log_path" "/etc/${package_name}/"
+
+  chown_paths --recursive "$package_user" "$data_path"
+
+  chmod_paths --recursive 0700 "$data_path"
+}
+
+riak_init_script()
+{
+  log "Installing ${package_name} init script"
+  install_template "riak/riak" \
+    to "${init_scripts_path}/${package_name}"
+
+  ensure_files_are_executable "${init_scripts_path}/${package_name}"
+
+  chmod_paths --recursive 0755 "${init_scripts_path}/${package_name}"
+}
+
+riak_profile_d()
+{
+  if user_is_root && os_is_linux
+  then
+    log "Installing ${package_name} profile.d script"
+
+    install_template "riak/riak.sh" \
+      to "/etc/profile.d/${package_name}.sh" \
+      mode 0755
+  fi
+}
+
+riak_conf_d()
+{
+  if user_is_root && os_is_linux
+  then
+    log "Installing ${package_name} conf.d script"
+
+    install_template "riak/riak.conf.d" \
+      to "/etc/conf.d/${package_name}.conf" \
+      mode 0644
+  fi
+}

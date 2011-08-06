@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+configure_riak
+
+configure_riak_for_users
+

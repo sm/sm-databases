@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Redis Configuration.
+true ${service_port:=6379} ${service_bind_interface:="127.0.0.1"}
+
+service_binary="${active_path}/bin/redis-server"
+service_cli_binary="${active_path}/bin/redis-cli"
+service_db_file="${service_db_path}/active/redis.rdb"
+
+service_flags+=( "${service_config_file}" )
+
