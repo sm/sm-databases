@@ -13,13 +13,6 @@ then
   service_stop_flags+=( -m fast -w )
 fi
 
-if os_is_darwin
-then
-  service_user="_postgres"
-else
-  service_user="postgres"
-fi
-
 export PGDATA="${service_data_path}/data"
 
 service_pid_file="${service_data_path}/data/postmaster.pid"
