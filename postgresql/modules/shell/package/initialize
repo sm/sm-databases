@@ -17,5 +17,5 @@ else
   prefix_path="$HOME/.bdsm"
 fi
 
-configure_flags=( --with-readline="${active_path}/lib" )
+configure_flags=( --with-readline-dir="${active_path}/lib" )
 
