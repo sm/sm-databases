@@ -1,0 +1,4 @@
+start=service_start()
+stop=service_stop()
+restart=service_restart()
+status=service_status()
