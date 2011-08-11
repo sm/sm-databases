@@ -2,7 +2,7 @@
 
 postgresql_postinstall()
 {
-  user_create_if_missing "$package_user"
+  user_create_if_missing "$service_user"
 
   postgresql_init_script
   postgresql_conf_d
@@ -14,7 +14,7 @@ postgresql_postinstall()
   * postgresql has been installed to $install_path
   * postgresql configuration and data files will are in $service_data_path
   * You can control the postgresql server via the bdsm postgresql extension'
-  * The postgersql superuser is '$package_user', no password.
+  * The postgersql superuser is '$service_user', no password.
   * Use /etc/conf.d/postgresql.conf for server startup customization.
 
   "
@@ -61,20 +61,20 @@ postgresql_database_setup()
 {
   log "Initializing postgresql data directory in $service_data_path"
   ensure_paths_exist "${service_data_path}"
-  chown_paths --recursive "$package_user:$package_user" "${service_data_path}"
+  chown_paths --recursive "$service_user:$service_user" "${service_data_path}"
 
-  command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$package_user"
+  command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
 
   copy_files --force to "${service_data_path}" "${install_path}"/share/*.sample
 
   if user_is_root
   then
-    user_run_as "${package_user}" "${command}"
+    user_run_as "${service_user}" "${command}"
   else
     "${command}"
   fi
 
-  chown_paths --recursive "$package_user:$package_user" "${service_data_path}"
+  chown_paths --recursive "$service_user:$service_user" "${service_data_path}"
   chmod_paths --recursive 0700 "${service_data_path}"
 }
 
@@ -114,7 +114,7 @@ postgresql_service_setup()
 
   postgresql_conf_update
 
-  chown_paths --recursive "$package_user" "$data_base_path"
+  chown_paths --recursive "$service_user" "$data_base_path"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
