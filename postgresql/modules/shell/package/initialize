@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+package_dependencies=(readline)
+
 package_definition \
   base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
 
@@ -14,4 +16,6 @@ else
   package_user="$USER"
   prefix_path="$HOME/.bdsm"
 fi
+
+configure_flags=( --with-readline="${active_path}/lib" )
 
