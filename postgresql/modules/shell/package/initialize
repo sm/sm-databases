@@ -7,7 +7,6 @@ package_definition \
 
 if user_is_root
 then
-  read_default user prefix package
   if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
   then
     package_user="postgres"
