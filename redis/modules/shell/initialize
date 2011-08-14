@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
 
-read_default website_url prefix package
-
