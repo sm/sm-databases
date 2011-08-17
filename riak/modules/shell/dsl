@@ -65,6 +65,7 @@ riak_configure()
 
   file="${source_path}/${package_dir}/rel/riak/etc/vm.args"
   if file_is_nonempty "${file}"
+  then
     log "Installing ${file//*\/} to /etc/${package_name}"
     cp -f "${file}" "/etc/${package_name}/${file//*\/}"
   else
