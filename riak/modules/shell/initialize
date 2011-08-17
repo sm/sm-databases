@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 package_definition \
-  url "http://downloads.basho.com/riak/riak-${package_version%.*}" \
+  base_url "http://downloads.basho.com/riak/riak-${package_version%.*}" \
   target_path "${prefix_path}/${package_name}-${package_version/%-*}"
 
 case "${OSTYPE}" in
