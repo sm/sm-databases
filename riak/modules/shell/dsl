@@ -18,8 +18,6 @@ riak_install()
 
   copy_files to "${erts_path}/bin" nodetool erl
   )
-
-  # TODO: install man pages from doc/man/man1/*
 }
 
 riak_initdb()
@@ -41,12 +39,17 @@ riak_initdb()
   else
     "${command}"
   fi
-
-  riak_configure
 }
 
 riak_configure()
 {
+  true
+}
+
+riak_postinstall()
+{
+  riak_initdb
+
   local file
 
   log "Configuring ${package_name} server."
