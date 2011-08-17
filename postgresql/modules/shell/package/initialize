@@ -13,7 +13,7 @@ then
   fi
 else
   package_user="$USER"
-  prefix_path="$HOME/.bdsm"
+  prefix_path="$HOME/.sm"
 fi
 
 configure_flags=( --with-readline-dir="${active_path}/lib" )

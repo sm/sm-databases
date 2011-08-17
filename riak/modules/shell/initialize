@@ -1,52 +1,17 @@
 #!/usr/bin/env bash
 
 package_definition \
-  url "http://downloads.basho.com/riak/riak-${package_version%.*}/${package_name}-${package_version}.${archive_format}" \
-  file "${package_name}-${package_version}.${archive_format}" \
-  dir "${package_name}-${package_version%-*}" \
+  url "http://downloads.basho.com/riak/riak-${package_version%.*}" \
   target_path "${prefix_path}/${package_name}-${package_version/%-*}"
 
-package_dependencies=( ncurses openssl )
-
-if user_is_root
-then
-  data_path="/var/db/${package_name}/${package_version}"
-
-  sudo=""
-
-  if [[ -d /etc/profile.d ]] ; then
-    profiles=(/etc/profile.d/mysql.sh)
-  else
-    if [[ -f /etc/bash.bashrc ]] ; then
-      profiles=(/etc/bash.bashrc)
-    else
-      profiles=(/etc/bashrc)
+case "${OSTYPE}" in
+  darwin*) # Account for Lion's clang default.
+    if [[ "$(sw_vers -productVersion)" == "10.7" ]]
+    then
+      export CC="/usr/bin/gcc-4.2"
     fi
-  fi
+    ;;
+esac
 
-  install_path="${prefix_path}/${package_name}-${package_version}"
-else
-  sudo="sudo"
-
-  true \
-    "${package_user:=$USER}" \
-    "${prefix_path:="$HOME"}"
-
-  true \
-    "${data_path:="$prefix_path/.${package_name}-${package_version}"}" \
-    "${profiles:=("$HOME/.bash_profile" "$HOME/.bashrc")}" \
-    "${install_path:="$prefix_path/.${package_name}-${package_version}"}"
-fi
-
-log_path="$data_path/log"
-
-if [[ "$action" = *install ]] ; then
-  # TODO: configure flags per OS.
-  # http://dev.mysql.com/doc/refman/5.1/en/source-configuration-options.html
-  export LANG="C"
-fi
-
-load cli
-
-timestamp="$(date +"%Y-%m-%dT%H:%M")"
+build_command="make rel"
 
