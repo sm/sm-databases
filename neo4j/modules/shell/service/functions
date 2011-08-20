@@ -1,0 +1,7 @@
+#!/bin/sh
+
+neo4j_stop()
+{
+  enter "${install_path}/bin"
+  ./neo4j stop
+}

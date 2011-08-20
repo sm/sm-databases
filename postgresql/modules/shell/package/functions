@@ -1,0 +1,41 @@
+#!/bin/sh
+
+postgresql_uninstall() {
+  remove_paths \
+    "${prefix_path}/${package_name}" \
+    "${prefix_path}/${package_name}-${package_version}"
+
+  remove_files \
+    /etc/profile.d/postgresql.sh \
+    /etc/ld.so.conf.d/postgresql.conf \
+    "${init_scripts_path}/postgresql"
+
+  user_delete "${package_user}"
+
+  log "Removal of ${package_name} complete."
+
+}
+
+display_install_message()
+{
+  log "
+
+Message:
+
+I am wayneeseguin in #rvm on irc.freenode.net and I am happy to discuss
+improving this script, or field questions.
+
+This script will now:
+
+* Install ${package_name}-${package_version} to $install_path
+* Put init script in place
+* Add postgresql to ldconfig (Linux)
+* Create and initialize data directory
+* Setup profile.d script adding postgresql binaries to the path
+* Add conf.d file allowing for server customization
+* Adjust sysctl kernel parameters for postgresql (Linux)
+
+"
+}
+
+
