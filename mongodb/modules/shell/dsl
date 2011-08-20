@@ -1,4 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+mongodb_initialize()
+{
+  # The binary downloads are customized based on OS and Arch.
+  mongodb_set_architecture
+  mongodb_set_os
+
+  package_definition \
+    base_url "http://fastdl.mongodb.org/${os}" \
+    file "mongodb-${os}-${architecture}-${package_version}.${archive_format}" \
+    dir "mongodb-${os}-${architecture}-${package_version}"
+}
 
 mongodb_configure()
 {

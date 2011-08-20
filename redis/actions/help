@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 description "Extension for managing ${extension} (${website_url})."
 

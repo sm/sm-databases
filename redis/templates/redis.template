@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 log()  { printf "$*\n" ; return $? ;  }
 fail() { log "ERROR: $*" ; exit 1 ; }

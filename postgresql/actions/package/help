@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 action "package install" "Installs ${package_name} ${package_version}."
 action "package uninstall" "Installs ${package_name} ${package_version}."

@@ -1,4 +1,42 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+postgresql_initialize()
+{
+  package_dependencies=(readline)
+
+  package_definition \
+    base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
+
+  if user_is_root
+  then
+    if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
+    then
+      package_user="postgres"
+    fi
+  else
+    package_user="$USER"
+    prefix_path="$HOME/.sm"
+  fi
+
+  configure_flags=( --with-readline-dir="${active_path}/lib" )
+
+  : \
+    ${service_port:=5432} \
+    ${service_bind_interface:="127.0.0.1"}
+
+  service_binary="${service_bin_path}/pg_ctl"
+  service_cli_binary="${service_bin_path}/psql"
+  if array_is_empty service_flags
+  then
+    _action="${action//\(*}"
+    service_flags+=(${_action//*_} -D "$service_data_path/data" -s )
+    service_stop_flags+=( -m fast -w )
+  fi
+
+  export PGDATA="${service_data_path}/data"
+
+  service_pid_file="${service_data_path}/data/postmaster.pid"
+}
 
 postgresql_postinstall()
 {

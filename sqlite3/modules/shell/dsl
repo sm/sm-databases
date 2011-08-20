@@ -1,0 +1,9 @@
+#!/bin/sh
+
+sqlite3_initialize()
+{
+  package_definition \
+    dir "sqlite-autoconf-${package_version}" \
+    file "sqlite-autoconf-${package_version}.tar.gz"
+}
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # TODO: deal with mysql version_greater_than "5.5", eg. cmake etc...
 # This function must: configure, build, install to ${install_path}
@@ -7,6 +7,59 @@
 # http://dev.mysql.com/doc/refman/5.5/en/installing-source-distribution.html
 
 mysql_initialize()
+{
+  package_definition \
+    base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
+    target_path "${prefix_path}/${package_name}-${package_version}"
+
+  # TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
+  #         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
+
+  if user_is_root
+  then
+    sudo=""
+
+    if [[ -d /etc/profile.d ]]
+    then
+      profiles=(/etc/profile.d/mysql.sh)
+    else
+      if [[ -f /etc/bash.bashrc ]]
+      then
+        profiles=(/etc/bash.bashrc)
+      else
+        profiles=(/etc/bashrc)
+      fi
+    fi
+  else
+    sudo="sudo"
+
+    : \
+      "${profiles:=("$HOME/.bash_profile" "$HOME/.bashrc")}"
+  fi
+
+  log_path="$service_data_path/log"
+
+  if [[ "$action" = *install ]]
+  then
+    # TODO: configure flags per OS.
+    # http://dev.mysql.com/doc/refman/5.1/en/source-configuration-options.html
+    configure_flags=(
+    --prefix="${install_path}"
+    --localstatedir="${service_data_path}"
+    --enable-assembler
+    --with-mysqld-ldflags=-all-static
+    --with-charset=utf8
+    --with-collation=utf8_general_ci
+    )
+    export CFLAGS="-O3"
+    export CXX=gcc
+    export CXXFLAGS="-O3 -felide-constructors -fno-exceptions -fno-rtti"
+  fi
+
+  timestamp="$(date +"%Y-%m-%dT%H:%M")"
+
+}
+mysql_init()
 {
   user_create_if_missing "${package_user}"
 
@@ -25,7 +78,7 @@ mysql_initialize()
   * The mysql superuser is '$package_user', no password.
   * Use /etc/conf.d/mysql.conf for server startup customization.
 
-"
+  "
 }
 
 mysql_initdb()
@@ -43,16 +96,16 @@ mysql_initdb()
   then
     if user_run_as "${package_user}" \
       "${install_path}/bin/mysql_install_db --user=\"${package_user}\" --basedir=\"${install_path}\" --datadir=${service_data_path} "
-    then
-      log "Successfully initialized the database at ${service_data_path}"
-    else
-      warn "There was an error ($?) initializing the database at ${service_data_path}"
-    fi
+  then
+    log "Successfully initialized the database at ${service_data_path}"
   else
-    if ${install_path}/bin/mysql_install_db --user=\"${package_user}\" \
-      --basedir=\"${install_path}\" --datadir=${service_data_path}
-    then
-      log "Successfully initialized the database at ${service_data_path}"
+    warn "There was an error ($?) initializing the database at ${service_data_path}"
+  fi
+else
+  if ${install_path}/bin/mysql_install_db --user=\"${package_user}\" \
+    --basedir=\"${install_path}\" --datadir=${service_data_path}
+then
+  log "Successfully initialized the database at ${service_data_path}"
     else
       warn "There was an error ($?) initializing the database at ${service_data_path}"
     fi
@@ -96,7 +149,7 @@ mysql_postinstall()
 
   chmod_paths --recursive 0700 "$service_data_path"
 
-  mysql_initialize
+  mysql_init
 
 }
 

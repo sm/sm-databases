@@ -1,4 +1,24 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+riak_initialize()
+{
+  package_dependencies=(erlang git)
+
+  package_definition \
+    base_url "http://downloads.basho.com/riak/riak-${package_version%.*}" \
+    target_path "${prefix_path}/${package_name}-${package_version/%-*}"
+
+  case "${OSTYPE}" in
+    darwin*) # Account for Lion's clang default.
+      if [[ "$(sw_vers -productVersion)" == "10.7" ]]
+      then
+        export CC="/usr/bin/gcc-4.2"
+      fi
+      ;;
+  esac
+
+  build_command="make rel"
+}
 
 riak_install()
 {

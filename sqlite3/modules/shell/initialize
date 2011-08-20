@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-package_definition \
-  dir "sqlite-autoconf-${package_version}" \
-  file "sqlite-autoconf-${package_version}.tar.gz"
-

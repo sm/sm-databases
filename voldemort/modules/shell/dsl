@@ -1,4 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+voldemort_initialize()
+{
+  service_binary="${active_path}/bin/voldemort-server.sh"
+}
 
 voldemort_build()
 {

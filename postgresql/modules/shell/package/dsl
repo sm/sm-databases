@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 postgresql_uninstall() {
   remove_paths \

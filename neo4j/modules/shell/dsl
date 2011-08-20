@@ -1,5 +1,47 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
+neo4j_initialize()
+{
+
+  package_definition \
+    file "${package_name}-${package_version}-unix.${archive_format}" # \
+    #dir "${package_name}-${package_version}"
+
+  #if [[ "${package_version}" == "head" ]]
+  #then
+  #  repository_url="git@github.com:neo4j/community.git"
+  #  # neo4j_build: mvn clean install -Dmaven.test.skip=true
+  #  package_dependencies=(maven docbook asciidoc w3m fop)
+  #fi
+  true ${service_port:=7474}
+
+  service_db_file="${service_db_path}/active/graph.db"
+
+  service_run_as_root_flag=1
+  service_flags=( )
+  service_start_flags=(start)
+  service_stop_flags=(stop)
+  service_restart_flags=(restart)
+
+  # TODO: Figure out how to relocate this to /var/run/ ...
+  service_pid_file="${install_path}/data/neo4j-server.pid"
+  if file_exists "${service_pid_file}"
+  then
+    read -r service_pid < "${service_pid_file}" || true
+  fi
+
+  # neo4j commands:
+# console
+# start
+# stop
+# restart
+# condrestart
+# status
+# install
+# remove
+# dump
+
+}
 neo4j_configure()
 {
   true

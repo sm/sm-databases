@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 install_template "${extension}" to "${init_scripts_path}"
 
