@@ -2,7 +2,7 @@ backup/database=backup/database
 backup/tables=backup/tables
 conf/edit=conf/edit
 conf/help=conf/help
-help=help
+
 package/help=package/help
 package/install=package/package_install()
 package/uninstall=package/package_uninstall()

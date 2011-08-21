@@ -1,5 +1,5 @@
 backup=backup
 configure=configure
-help=help
+
 initialize=initialize
 service/upgrade=service/mysql_upgrade()
