@@ -17,7 +17,7 @@ elasticsearch_install()
   _paths=($( find "${source_path}/${package_dir}" -type d ))
   for _path in "${_paths[@]}"
   do
-    ensure_paths_exist "${install_path}${_path##${source_path}/${package_dir}}"
+    paths create "${install_path}${_path##${source_path}/${package_dir}}"
   done
 
   _files=($( find "${source_path}/${package_dir}" -type f ))

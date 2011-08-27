@@ -20,7 +20,7 @@ redis_make_install()
   fi
 
   # TODO: Install to install_path
-  ensure_paths_exist "${install_path}/bin"
+  paths create "${install_path}/bin"
 
   log "#installing ${package_name} ${package_version}...\n"
   for file in redis-server redis-cli

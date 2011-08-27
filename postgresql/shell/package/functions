@@ -1,7 +1,7 @@
 #!/bin/sh
 
 postgresql_uninstall() {
-  remove_paths \
+  paths remove \
     "${prefix_path}/${package_name}" \
     "${prefix_path}/${package_name}-${package_version}"
 

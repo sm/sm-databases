@@ -19,6 +19,6 @@ voldemort_install()
 {
   local _target="${install_base_path}/${package_version}"
 
-  copy_paths "${source_path}/${package_dir}/" to "${_target}"
+  paths copy "${source_path}/${package_dir}/" to "${_target}"
 }
 

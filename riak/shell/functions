@@ -23,13 +23,13 @@ riak_initialize()
 riak_install()
 {
   (
-  enter rel/riak
+  paths enter rel/riak
   directories=($(find . -mindepth 1 -maxdepth 1 -type d))
-  copy_paths to "${install_path}/" "${directories[@]}"
+  paths copy to "${install_path}/" "${directories[@]}"
   )
 
   (
-  enter rel/files
+  paths enter rel/files
 
   copy_files to "/etc/${package_name}" app.config  vm.args
   copy_files to "${install_path}/bin" riak riak-admin
@@ -44,9 +44,9 @@ riak_initdb()
 {
   log "Initializing riak data directory in $data_path"
 
-  ensure_paths_exist "${data_path%\/*}"
+  paths create "${data_path%\/*}"
 
-  chown_paths_recursively "$package_user" "${data_path%\/*}"
+  paths chown recursive "$package_user" "${data_path%\/*}"
 
   # TODO: how do you initialize a riak DB?
   command="${install_path}/bin/riak --user=\"${package_user}\" --basedir=\"${install_path}\" --datadir=${data_path} "
@@ -97,15 +97,15 @@ riak_postinstall()
 
   log "\nSymlinking $install_path to $prefix_path/${package_name}"
 
-  remove_paths "$prefix_path/${package_name}"
+  paths remove "$prefix_path/${package_name}"
 
   link "$install_path" to "$prefix_path/${package_name}"
 
-  ensure_paths_exist "$data_path" "$log_path" "/etc/${package_name}/"
+  paths create "$data_path" "$log_path" "/etc/${package_name}/"
 
-  chown_paths --recursive "$package_user" "$data_path"
+  paths chown recursive "$package_user" "$data_path"
 
-  chmod_paths --recursive 0700 "$data_path"
+  paths chmod recursive 0700 "$data_path"
 }
 
 riak_init_script()
@@ -116,7 +116,7 @@ riak_init_script()
 
   ensure_files_are_executable "${init_scripts_path}/${package_name}"
 
-  chmod_paths --recursive 0755 "${init_scripts_path}/${package_name}"
+  paths chmod recursive 0755 "${init_scripts_path}/${package_name}"
 }
 
 riak_profile_d()

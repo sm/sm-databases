@@ -85,9 +85,9 @@ mysql_initdb()
 {
   log "Initializing mysql data directory in $service_data_path"
 
-  ensure_paths_exist "${service_data_path%\/*}"
+  paths create "${service_data_path%\/*}"
 
-  chown_paths --recursive "$package_user" "${service_data_path%\/*}"
+  paths chown recursive "$package_user" "${service_data_path%\/*}"
 
   # --srcdir=\"${source_path}/${package_name}-${package_version}\"
   export PATH="${install_path}/bin:$PATH"
@@ -132,7 +132,7 @@ mysql_postinstall()
     if file_is_nonempty "${file}"
     then
       log "Installing my.cnf to /etc/mysql"
-      ensure_paths_exist "/etc/mysql"
+      paths create "/etc/mysql"
       copy_file --force "${file}" to "/etc/mysql/my.cnf"
     else
       error "${file} missing, not setting up /etc/mysql/my.cnf"
@@ -141,13 +141,13 @@ mysql_postinstall()
 
   log "\nSymlinking $install_path to $prefix_path/mysql"
 
-  remove_paths "$prefix_path/mysql"
+  paths remove "$prefix_path/mysql"
 
-  ensure_paths_exist "$service_data_path" "$log_path" "/etc/mysql/"
+  paths create "$service_data_path" "$log_path" "/etc/mysql/"
 
-  chown_paths --recursive "$package_user" "$service_data_path"
+  paths chown recursive "$package_user" "$service_data_path"
 
-  chmod_paths --recursive 0700 "$service_data_path"
+  paths chmod recursive 0700 "$service_data_path"
 
   mysql_init
 
@@ -178,7 +178,7 @@ mysql_upgrade()
 
 mysql_uninstall()
 {
-  remove_paths \
+  paths remove \
     "${prefix_path}/${package_name}" \
     "${prefix_path}/${package_name}-${package_version}"
 
@@ -203,7 +203,7 @@ mysql_uninstall()
       /usr/local/mysql*
     )
 
-    remove_paths ${paths[@]}
+    paths remove ${paths[@]}
 
     sed -i -e 's#^MYSQLCOM.*$##' /etc/hostconfig
   fi

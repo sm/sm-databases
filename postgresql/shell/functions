@@ -98,8 +98,8 @@ postgresql_kernel_parameters()
 postgresql_database_setup()
 {
   log "Initializing postgresql data directory in $service_data_path"
-  ensure_paths_exist "${service_data_path}"
-  chown_paths --recursive "$service_user:$service_user" "${service_data_path}"
+  paths create "${service_data_path}"
+  paths chown recursive "$service_user:$service_user" "${service_data_path}"
 
   command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
 
@@ -112,8 +112,8 @@ postgresql_database_setup()
     "${command}"
   fi
 
-  chown_paths --recursive "$service_user:$service_user" "${service_data_path}"
-  chmod_paths --recursive 0700 "${service_data_path}"
+  paths chown recursive "$service_user:$service_user" "${service_data_path}"
+  paths chmod recursive 0700 "${service_data_path}"
 }
 
 postgresql_service_setup()
@@ -121,7 +121,7 @@ postgresql_service_setup()
   local file _entries
   log "Configuring postgresql server."
 
-  ensure_paths_exist "${service_data_path}" "$log_path"
+  paths create "${service_data_path}" "$log_path"
 
   postgresql_database_setup
 
@@ -152,7 +152,7 @@ postgresql_service_setup()
 
   postgresql_conf_update
 
-  chown_paths --recursive "$service_user" "$data_base_path"
+  paths chown recursive "$service_user" "$data_base_path"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
@@ -168,7 +168,7 @@ postgresql_conf_d()
 {
   log "Installing Postgresql conf.d script"
 
-  ensure_paths_exist "${confd_path}"
+  paths create "${confd_path}"
 
   install_template "postgresql/postgresql.conf.d" \
     to "${confd_path}/postgresql.conf" \

@@ -54,7 +54,7 @@ neo4j_build()
 
 neo4j_install()
 {
-  copy_paths --force from "${source_path}/${package_dir}/" to "${install_path}"
+  paths copy --force from "${source_path}/${package_dir}/" to "${install_path}"
 }
 
 neo4j_setup()
