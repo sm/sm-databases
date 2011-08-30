@@ -4,7 +4,7 @@ riak_initialize()
 {
   package_dependencies=(erlang git)
 
-  package_definition \
+  package define \
     base_url "http://downloads.basho.com/riak/riak-${package_version%.*}" \
     target_path "${prefix_path}/${package_name}-${package_version/%-*}"
 
@@ -31,12 +31,12 @@ riak_install()
   (
   paths enter rel/files
 
-  copy_files to "/etc/${package_name}" app.config  vm.args
-  copy_files to "${install_path}/bin" riak riak-admin
+  files copy to "/etc/${package_name}" app.config  vm.args
+  files copy to "${install_path}/bin" riak riak-admin
 
   erts_path="$(find "${install_path}/" -mindepth 1 -maxdepth 1 -iname "erts-*" -type d)"
 
-  copy_files to "${erts_path}/bin" nodetool erl
+  files copy to "${erts_path}/bin" nodetool erl
   )
 }
 
@@ -53,9 +53,9 @@ riak_initdb()
 
   export PATH="${install_path}/bin:$PATH"
 
-  if user_is_root
+  if user is root
   then
-    user_run_as "${package_user}" "${command}"
+    command run as "${package_user}" "${command}"
   else
     "${command}"
   fi
@@ -121,7 +121,7 @@ riak_init_script()
 
 riak_profile_d()
 {
-  if user_is_root && os_is_linux
+  if user is root && os is linux
   then
     log "Installing ${package_name} profile.d script"
 
@@ -133,7 +133,7 @@ riak_profile_d()
 
 riak_conf_d()
 {
-  if user_is_root && os_is_linux
+  if user is root && os is linux
   then
     log "Installing ${package_name} conf.d script"
 

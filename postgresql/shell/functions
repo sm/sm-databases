@@ -4,10 +4,10 @@ postgresql_initialize()
 {
   package_dependencies=(readline)
 
-  package_definition \
+  package define \
     base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
 
-  if user_is_root
+  if user is root
   then
     if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
     then
@@ -103,9 +103,11 @@ postgresql_database_setup()
 
   command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
 
-  copy_files --force to "${service_data_path}" "${install_path}"/share/*.sample
+  files copy force \
+    to "${service_data_path}" \
+    "${install_path}"/share/*.sample
 
-  if user_is_root
+  if user is root
   then
     user_run_as "${service_user}" "${command}"
   else
@@ -139,10 +141,11 @@ postgresql_service_setup()
       fi
       log "Installing ${file}.conf to ${service_data_path}/"
 
-      copy_file "$service_data_path/${file}.conf.sample" \
+      files copy force \
+        from "$service_data_path/${file}.conf.sample" \
         to "$service_data_path/${file}.conf"
 
-      if file_is_missing "${service_config_path}/${file}.conf"
+      if file is missing "${service_config_path}/${file}.conf"
       then
         link "$service_data_path/${file}.conf" \
           to "${service_config_path}/${file}.conf"
@@ -190,7 +193,7 @@ postgresql_preconfigure()
       --enable-shared
     )
 
-    if os_is_darwin
+    if os is darwin
     then
       configure_flags[${#configure_flags[@]}]="--with-bonjour"
     fi

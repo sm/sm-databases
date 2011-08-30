@@ -8,14 +8,14 @@
 
 mysql_initialize()
 {
-  package_definition \
+  package define \
     base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
     target_path "${prefix_path}/${package_name}-${package_version}"
 
   # TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
   #         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
 
-  if user_is_root
+  if user is root
   then
     sudo=""
 
@@ -92,7 +92,7 @@ mysql_initdb()
   # --srcdir=\"${source_path}/${package_name}-${package_version}\"
   export PATH="${install_path}/bin:$PATH"
 
-  if user_is_root
+  if user is root
   then
     if user_run_as "${package_user}" \
       "${install_path}/bin/mysql_install_db --user=\"${package_user}\" --basedir=\"${install_path}\" --datadir=${service_data_path} "
@@ -133,7 +133,7 @@ mysql_postinstall()
     then
       log "Installing my.cnf to /etc/mysql"
       paths create "/etc/mysql"
-      copy_file --force "${file}" to "/etc/mysql/my.cnf"
+      files copy force from "${file}" to "/etc/mysql/my.cnf"
     else
       error "${file} missing, not setting up /etc/mysql/my.cnf"
     fi
@@ -189,7 +189,7 @@ mysql_uninstall()
 
   user_delete "${package_user}"
 
-  if os_is_darwin ; then
+  if os is darwin ; then
     remove_files \
       "/usr/local/mysql"
 

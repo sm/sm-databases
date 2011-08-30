@@ -3,7 +3,7 @@
 neo4j_initialize()
 {
 
-  package_definition \
+  package define \
     file "${package_name}-${package_version}-unix.${archive_format}" # \
     #dir "${package_name}-${package_version}"
 

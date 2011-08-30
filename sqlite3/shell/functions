@@ -2,7 +2,7 @@
 
 sqlite3_initialize()
 {
-  package_definition \
+  package define \
     dir "sqlite-autoconf-${package_version}" \
     file "sqlite-autoconf-${package_version}.tar.gz"
 }

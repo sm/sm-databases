@@ -6,7 +6,7 @@ mongodb_initialize()
   mongodb_set_architecture
   mongodb_set_os
 
-  package_definition \
+  package define \
     base_url "http://fastdl.mongodb.org/${os}" \
     file "mongodb-${os}-${architecture}-${package_version}.${archive_format}" \
     dir "mongodb-${os}-${architecture}-${package_version}"
@@ -36,7 +36,7 @@ mongodb_install()
   do
     name=${file//*\/}
     paths create "${install_path}/bin"
-    copy_file "${file}" to "${install_path}/bin/${name}" mode 0755
+    files copy from "${file}" to "${install_path}/bin/${name}" mode 0755
   done
 }
 
