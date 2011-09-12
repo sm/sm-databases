@@ -17,7 +17,8 @@ postgresql_initialize()
 
   configure_flags=( --with-readline-dir="${active_path}/lib" )
 
-  true ${service_port:=5432} ${service_bind_interface:="127.0.0.1"}
+  true ${service_port:=5432} ${service_bind_interface:="127.0.0.1"} \
+    ${service_user:=${package_user}}
 
   service_binary="${service_bin_path}/pg_ctl"
   service_cli_binary="${service_bin_path}/psql"
@@ -42,7 +43,8 @@ postgresql_prefetch()
 
 postgresql_postinstall()
 {
-  user create unless exists name "${service_user:=postgresql}"
+  user create unless exists \
+    name "${service_user}" shell "/sbin/nologin"
 
   postgresql_init_script
   postgresql_conf_d
