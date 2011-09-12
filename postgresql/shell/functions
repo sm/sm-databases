@@ -20,13 +20,12 @@ postgresql_initialize()
 
   configure_flags=( --with-readline-dir="${active_path}/lib" )
 
-  : \
-    ${service_port:=5432} \
-    ${service_bind_interface:="127.0.0.1"}
+  true ${service_port:=5432} ${service_bind_interface:="127.0.0.1"}
 
   service_binary="${service_bin_path}/pg_ctl"
   service_cli_binary="${service_bin_path}/psql"
-  if array_is_empty service_flags
+
+  if array is empty service_flags
   then
     _action="${action//\(*}"
     service_flags+=(${_action//*_} -D "$service_data_path/data" -s )
@@ -60,32 +59,31 @@ postgresql_postinstall()
 
 postgresql_conf_update()
 {
-
-  replace_content "^.*data_directory.*" \
+  files replace content "^.*data_directory.*" \
     with "data_directory = '${service_db_path}/active/data'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*hba_file.*" \
+  files replace content "^.*hba_file.*" \
     with "hba_file = '${service_db_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*ident_file.*" \
+  files replace content "^.*ident_file.*" \
     with "ident_file = '${service_pid_file}'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*listen_address.*" \
+  files replace content "^.*listen_address.*" \
     with "listen_address = '*'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*max_connections.*" \
+  files replace content "^.*max_connections.*" \
     with "max_connections = '50'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*unix_socket_directory.*" \
+  files replace content "^.*unix_socket_directory.*" \
     with "unix_socket_directory = '${service_pid_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  replace_content "^.*shared_buffers.*" \
+  files replace content "^.*shared_buffers.*" \
     with "shared_buffers = '64MB'" \
     in "${service_data_path}/postgresql.conf"
 }
@@ -109,7 +107,7 @@ postgresql_database_setup()
 
   if user is root
   then
-    user_run_as "${service_user}" "${command}"
+    su - "${service_user}" -c "${command}"
   else
     "${command}"
   fi
@@ -123,7 +121,7 @@ postgresql_service_setup()
   local file _entries
   log "Configuring postgresql server."
 
-  paths create "${service_data_path}" "$log_path"
+  paths create "${service_data_path}" "${log_path}"
 
   postgresql_database_setup
 
@@ -132,9 +130,9 @@ postgresql_service_setup()
   log "service_data_path: ${service_data_path}"
   for file in postgresql pg_hba pg_ident recovery
   do
-    if file_is_empty_or_missing "${service_data_path}/${file}.conf"
+    if ! file is nonempty "${service_data_path}/${file}.conf"
     then
-      if file_is_missing "$service_data_path/${file}.conf.sample"
+      if ! file exists "$service_data_path/${file}.conf.sample"
       then
         log "Missing $service_data_path/${file}.conf.sample, skipping."
         continue
@@ -155,7 +153,7 @@ postgresql_service_setup()
 
   postgresql_conf_update
 
-  paths chown recursive "$service_user" "$data_base_path"
+  path chown recursive "$service_user" "$data_base_path"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
@@ -164,7 +162,8 @@ postgresql_service_setup()
 postgresql_init_script()
 {
   log "Installing Postgresql init script"
-  install_template "postgresql/postgresql" to "${init_scripts_path}/postgresql" mode 0755
+  template install "postgresql/postgresql" \
+    to "${init_scripts_path}/postgresql" mode 0755
 }
 
 postgresql_conf_d()
@@ -173,11 +172,11 @@ postgresql_conf_d()
 
   paths create "${confd_path}"
 
-  install_template "postgresql/postgresql.conf.d" \
+  template install "postgresql/postgresql.conf.d" \
     to "${confd_path}/postgresql.conf" \
     mode 0644
 
-  seed_template "/etc/conf.d/postgresql.conf" \
+  template seed "/etc/conf.d/postgresql.conf" \
     packages_path "${packages_path}" \
     service_data_path "${service_data_path}"
 }
@@ -207,6 +206,6 @@ postgresql_reload()
 {
   log "Reload PostgreSQL Server configuration"
 
-  user_run_as "${service_user}" "$control reload -D '${service_data_path}' -s"
+  su - "${service_user}" -c "$control reload -D '${service_data_path}' -s"
 }
 
