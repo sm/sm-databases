@@ -34,7 +34,7 @@ postgresql_initialize()
   service_pid_file="${service_data_path}/data/postmaster.pid"
 }
 
-package_prefetch()
+postgresql_prefetch()
 {
   package define \
     base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
