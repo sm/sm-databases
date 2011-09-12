@@ -4,9 +4,6 @@ postgresql_initialize()
 {
   package_dependencies=(readline)
 
-  package define \
-    base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
-
   if user is root
   then
     if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
@@ -35,6 +32,12 @@ postgresql_initialize()
   export PGDATA="${service_data_path}/data"
 
   service_pid_file="${service_data_path}/data/postmaster.pid"
+}
+
+package_prefetch()
+{
+  package define \
+    base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
 }
 
 postgresql_postinstall()
