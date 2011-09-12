@@ -175,7 +175,7 @@ postgresql_conf_d()
 {
   log "Installing Postgresql conf.d script"
 
-  path create "${service_confd_path}"
+  path create "${confd_path}"
 
   template install "postgresql/postgresql.conf.d" \
     to "${confd_path}/postgresql.conf" \
