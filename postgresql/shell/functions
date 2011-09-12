@@ -190,7 +190,7 @@ postgresql_preconfigure()
   then
     configure_flags=(
       --prefix="${install_base_path}/${package_version}"
-      --datadir="${service_data_path}"
+      --datadir="${install_base_path}/${package_version}/data"
       --with-openssl
       --enable-shared
     )
