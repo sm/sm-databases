@@ -42,7 +42,7 @@ postgresql_prefetch()
 
 postgresql_postinstall()
 {
-  user_create_if_missing "$service_user"
+  user create "$service_user"
 
   postgresql_init_script
   postgresql_conf_d
@@ -173,7 +173,7 @@ postgresql_conf_d()
 {
   log "Installing Postgresql conf.d script"
 
-  paths create "${confd_path}"
+  path create "${service_confd_path}"
 
   template install "postgresql/postgresql.conf.d" \
     to "${confd_path}/postgresql.conf" \
