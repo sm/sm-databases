@@ -42,7 +42,7 @@ postgresql_prefetch()
 
 postgresql_postinstall()
 {
-  user create "$service_user"
+  user create unless exists "$service_user"
 
   postgresql_init_script
   postgresql_conf_d
@@ -99,7 +99,7 @@ postgresql_kernel_parameters()
 postgresql_database_setup()
 {
   log "Initializing postgresql data directory in $service_data_path"
-  paths create "${service_data_path}"
+  path create "${service_data_path}"
   paths chown recursive "$service_user:$service_user" "${service_data_path}"
 
   command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
