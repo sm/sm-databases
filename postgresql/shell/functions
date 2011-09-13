@@ -2,6 +2,9 @@
 
 postgresql_initialize()
 {
+  package initialize
+  service initialize
+
   package_dependencies=(readline)
 
   if user is root
