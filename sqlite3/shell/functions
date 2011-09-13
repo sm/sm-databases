@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sqlite3_initialize()
+sqlite3_prefetch()
 {
   package define \
     dir "sqlite-autoconf-${package_version}" \
