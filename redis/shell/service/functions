@@ -2,7 +2,7 @@
 
 redis_service_setup()
 {
-  if file_is_nonempty "${service_config_file}"
+  if file is nonempty "${service_config_file}"
   then
     log "${service_config_file} already exists, not overwriting."
   else
