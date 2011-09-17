@@ -19,7 +19,7 @@ redis_service_setup()
         -e "s#bind .*\$#bind ${service_bind_interface}#" \
       "${source_path}/${package_dir}/redis.conf" > "${service_config_file}"
 
-    paths chown recursive "$service_user" "${service_config_path}"
+    paths chown "$service_user" recursive "${service_config_path}"
   fi
 
   return 0
