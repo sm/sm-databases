@@ -2,6 +2,8 @@
 
 redis_initialize()
 {
+  typeset -g service_port service_bind_interface service_binary service_cli_binary service_db_file
+  typeset -ga service_flags
   # Redis Configuration.
   true ${service_port:=6379} ${service_bind_interface:="127.0.0.1"}
 
