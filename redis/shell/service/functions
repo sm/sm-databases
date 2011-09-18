@@ -6,6 +6,8 @@ redis_service_setup()
   then
     log "${service_config_file} already exists, not overwriting."
   else
+    __sm.package.init
+
     log "#installing redis.conf file to ${service_config_file}"
 
     paths create "${service_config_path}"
