@@ -5,7 +5,10 @@ mongodb_initialize()
   # The binary downloads are customized based on OS and Arch.
   mongodb_set_architecture
   mongodb_set_os
+}
 
+mongodb_prefetch()
+{
   package define \
     base_url "http://fastdl.mongodb.org/${os}" \
     file "mongodb-${os}-${architecture}-${package_version}.${archive_format}" \

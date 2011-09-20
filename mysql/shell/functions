@@ -8,13 +8,6 @@
 
 mysql_initialize()
 {
-  package define \
-    base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
-    target_path "${prefix_path}/${package_name}-${package_version}"
-
-  # TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
-  #         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
-
   if user is root
   then
     sudo=""
@@ -59,6 +52,16 @@ mysql_initialize()
   timestamp="$(date +"%Y-%m-%dT%H:%M")"
 
 }
+
+mysql_prefetch()
+{
+  package define \
+    base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
+    target_path "${prefix_path}/${package_name}-${package_version}"
+  # TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
+  #         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
+}
+
 mysql_init()
 {
   user_create_if_missing "${package_user}"

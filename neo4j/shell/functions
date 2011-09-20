@@ -2,17 +2,6 @@
 
 neo4j_initialize()
 {
-
-  package define \
-    file "${package_name}-${package_version}-unix.${archive_format}" # \
-    #dir "${package_name}-${package_version}"
-
-  #if [[ "${package_version}" == "head" ]]
-  #then
-  #  repository_url="git@github.com:neo4j/community.git"
-  #  # neo4j_build: mvn clean install -Dmaven.test.skip=true
-  #  package_dependencies=(maven docbook asciidoc w3m fop)
-  #fi
   true ${service_port:=7474}
 
   service_db_file="${service_db_path}/active/graph.db"
@@ -42,6 +31,21 @@ neo4j_initialize()
 # dump
 
 }
+
+neo4j_prefetch()
+{
+  package define \
+    file "${package_name}-${package_version}-unix.${archive_format}" # \
+    #dir "${package_name}-${package_version}"
+
+  #if [[ "${package_version}" == "head" ]]
+  #then
+  #  repository_url="git@github.com:neo4j/community.git"
+  #  # neo4j_build: mvn clean install -Dmaven.test.skip=true
+  #  package_dependencies=(maven docbook asciidoc w3m fop)
+  #fi
+}
+
 neo4j_configure()
 {
   true
