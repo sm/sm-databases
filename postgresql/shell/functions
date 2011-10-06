@@ -2,9 +2,6 @@
 
 postgresql_initialize()
 {
-  package initialize
-  service initialize
-
   package_dependencies=(readline)
 
   if user is root
@@ -18,10 +15,15 @@ postgresql_initialize()
     prefix_path="$HOME/.sm"
   fi
 
-  configure_flags=( --with-readline-dir="${active_path}/lib" )
+  if package is active readline
+  then
+    configure_flags=( --with-readline-dir="${active_path}/lib" )
+  fi
 
-  true ${service_port:=5432} ${service_bind_interface:="127.0.0.1"} \
-    ${service_user:=${package_user}}
+  true \
+    ${service_port:=5432} \
+    ${service_bind_interface:="127.0.0.1"} \
+    ${service_user:=${package_user:-"postgres"}}
 
   service_binary="${service_bin_path}/pg_ctl"
   service_cli_binary="${service_bin_path}/psql"
@@ -215,5 +217,44 @@ postgresql_reload()
   log "Reload PostgreSQL Server configuration"
 
   su - "${service_user}" -c "$control reload -D '${service_data_path}' -s"
+}
+
+
+postgresql_uninstall() {
+  paths remove \
+    "${prefix_path}/${package_name}" \
+    "${prefix_path}/${package_name}-${package_version}"
+
+  remove_files \
+    /etc/profile.d/postgresql.sh \
+    /etc/ld.so.conf.d/postgresql.conf \
+    "${init_scripts_path}/postgresql"
+
+  user_delete "${package_user}"
+
+  log "Removal of ${package_name} complete."
+
+}
+
+display_install_message()
+{
+  log "
+
+Message:
+
+I am wayneeseguin in #rvm on irc.freenode.net and I am happy to discuss
+improving this script, or field questions.
+
+This script will now:
+
+* Install ${package_name}-${package_version} to $install_path
+* Put init script in place
+* Add postgresql to ldconfig (Linux)
+* Create and initialize data directory
+* Setup profile.d script adding postgresql binaries to the path
+* Add conf.d file allowing for server customization
+* Adjust sysctl kernel parameters for postgresql (Linux)
+
+"
 }
 
