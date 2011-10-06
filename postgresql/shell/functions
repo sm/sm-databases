@@ -107,6 +107,8 @@ postgresql_kernel_parameters()
 
 postgresql_database_setup()
 {
+  local _file
+
   log "Initializing postgresql data directory in $service_data_path"
   path create "${service_data_path}"
   if [[ ${service_user} == "postgresql" ]]
@@ -115,9 +117,14 @@ postgresql_database_setup()
 
   command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
 
-  files copy force \
-    to "${service_data_path}" \
-    "${install_path}"/share/*.sample
+  for file in "${install_path}"/share/*.sample
+  do
+    _file=${file%%.sample}
+
+    file copy force \
+      from "$file"
+      to "${service_data_path}/${_file##*/}"
+  done
 
   if user is root
   then
