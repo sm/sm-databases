@@ -2,8 +2,6 @@
 
 postgresql_initialize()
 {
-  package_dependencies=(readline)
-
   if user is root
   then
     if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
