@@ -26,6 +26,8 @@ postgresql_initialize()
   service_binary="${service_bin_path}/pg_ctl"
   service_cli_binary="${service_bin_path}/psql"
 
+  local _action
+
   if array is empty service_flags
   then
     _action="${action//\(*}"
