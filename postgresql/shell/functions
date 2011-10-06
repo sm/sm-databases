@@ -111,7 +111,7 @@ postgresql_database_setup()
   path create "${service_data_path}"
   if [[ ${service_user} == "postgresql" ]]
   then service_user="postgres" ; fi
-  paths chown recursive "$service_user:$service_user" "${service_data_path}"
+  path chown "$service_user:$service_user" recursively "${service_data_path}"
 
   command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
 
@@ -126,8 +126,8 @@ postgresql_database_setup()
     "${command}"
   fi
 
-  paths chown recursive "$service_user:$service_user" "${service_data_path}"
-  paths chmod recursive 0700 "${service_data_path}"
+  path chown "$service_user:$service_user" recursively "${service_data_path}"
+  path chmod 0700 recursively "${service_data_path}"
 }
 
 postgresql_service_setup()
