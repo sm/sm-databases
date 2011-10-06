@@ -71,31 +71,31 @@ postgresql_postinstall()
 
 postgresql_conf_update()
 {
-  files replace content "^.*data_directory.*" \
+  file replace content "^.*data_directory.*" \
     with "data_directory = '${service_db_path}/active/data'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*hba_file.*" \
+  file replace content "^.*hba_file.*" \
     with "hba_file = '${service_db_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*ident_file.*" \
+  file replace content "^.*ident_file.*" \
     with "ident_file = '${service_pid_file}'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*listen_address.*" \
+  file replace content "^.*listen_address.*" \
     with "listen_address = '*'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*max_connections.*" \
+  file replace content "^.*max_connections.*" \
     with "max_connections = '50'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*unix_socket_directory.*" \
+  file replace content "^.*unix_socket_directory.*" \
     with "unix_socket_directory = '${service_pid_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  files replace content "^.*shared_buffers.*" \
+  file replace content "^.*shared_buffers.*" \
     with "shared_buffers = '64MB'" \
     in "${service_data_path}/postgresql.conf"
 }
@@ -146,7 +146,9 @@ postgresql_service_setup()
 
   postgresql_database_setup
 
-  link --force "${service_data_path}" to "${data_base_path}/active"
+  link force \
+    from "${service_data_path}" \
+    to "${data_base_path}/active"
 
   log "service_data_path: ${service_data_path}"
   for file in postgresql pg_hba pg_ident recovery
@@ -166,7 +168,8 @@ postgresql_service_setup()
 
       if file is missing "${service_config_path}/${file}.conf"
       then
-        link "$service_data_path/${file}.conf" \
+        link force \
+          from "${service_data_path}/${file}.conf" \
           to "${service_config_path}/${file}.conf"
       fi
     fi
