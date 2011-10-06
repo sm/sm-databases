@@ -172,7 +172,7 @@ postgresql_service_setup()
 postgresql_init_script()
 {
   log "Installing Postgresql init script"
-  template install "postgresql/postgresql" \
+  template install "postgresql/postgresql.init.d" \
     to "${init_scripts_path}/postgresql" mode 0755
 }
 
