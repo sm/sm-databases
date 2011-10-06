@@ -146,7 +146,7 @@ postgresql_service_setup()
 
   postgresql_database_setup
 
-  link force \
+  file link force \
     from "${service_data_path}" \
     to "${data_base_path}/active"
 
@@ -168,7 +168,7 @@ postgresql_service_setup()
 
       if file is missing "${service_config_path}/${file}.conf"
       then
-        link force \
+        file link force \
           from "${service_data_path}/${file}.conf" \
           to "${service_config_path}/${file}.conf"
       fi
