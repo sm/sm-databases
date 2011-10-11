@@ -115,8 +115,6 @@ postgresql_database_setup()
   then service_user="postgres" ; fi
   path chown "$service_user:$service_user" recursively "${service_data_path}"
 
-  _command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
-
   for file in "${install_path}"/share/*.sample
   do
     _file=${file%%.sample}
@@ -126,11 +124,16 @@ postgresql_database_setup()
       to "${service_data_path}/${_file##*/}"
   done
 
-  if user is root
+  if ! path exists "${service_data_path}/data"
   then
-    su - "${service_user}" -c "${_command}"
-  else
-    "${_command}"
+  _command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
+
+    if user is root
+    then
+      su - "${service_user}" -c "${_command}"
+    else
+      "${_command}"
+    fi
   fi
 
   path chown "$service_user:$service_user" recursively "${service_data_path}"
