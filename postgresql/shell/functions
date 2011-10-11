@@ -173,7 +173,7 @@ postgresql_service_setup()
 
   postgresql_conf_update
 
-  path chown recursive "$service_user" "$service_data_path"
+  path chown "$service_user:$service_user" recursively "${service_data_path}"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
