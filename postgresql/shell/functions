@@ -146,10 +146,6 @@ postgresql_service_setup()
 
   postgresql_database_setup
 
-  file link force \
-    from "${service_data_path}" \
-    to "${data_base_path}/active"
-
   log "service_data_path: ${service_data_path}"
   for file in postgresql pg_hba pg_ident recovery
   do
@@ -177,7 +173,7 @@ postgresql_service_setup()
 
   postgresql_conf_update
 
-  path chown recursive "$service_user" "$data_base_path"
+  path chown recursive "$service_user" "$service_data_path"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
