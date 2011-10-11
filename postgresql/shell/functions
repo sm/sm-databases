@@ -71,38 +71,31 @@ postgresql_postinstall()
 
 postgresql_conf_update()
 {
-  file replace content \
-    regex "^.*data_directory.*" \
+  file replace regex "^.*data_directory.*" \
     with "data_directory = '${service_db_path}/active/data'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*hba_file.*" \
+  file replace regex "^.*hba_file.*" \
     with "hba_file = '${service_db_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*ident_file.*" \
+  file replace regex "^.*ident_file.*" \
     with "ident_file = '${service_pid_file}'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*listen_address.*" \
+  file replace regex "^.*listen_address.*" \
     with "listen_address = '*'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*max_connections.*" \
+  file replace regex "^.*max_connections.*" \
     with "max_connections = '50'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*unix_socket_directory.*" \
+  file replace regex "^.*unix_socket_directory.*" \
     with "unix_socket_directory = '${service_pid_path}'" \
     in "${service_data_path}/postgresql.conf"
 
-  file replace content \
-    regex "^.*shared_buffers.*" \
+  file replace regex "^.*shared_buffers.*" \
     with "shared_buffers = '64MB'" \
     in "${service_data_path}/postgresql.conf"
 }
