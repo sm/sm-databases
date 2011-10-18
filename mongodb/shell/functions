@@ -32,7 +32,7 @@ mongodb_install()
   paths create "${install_path}"
 
   files=($(
-  find "${source_path}/${package_dir}/bin" -mindepth 1 -maxdepth 1 -type f
+    find "${source_path}/${package_dir}/bin" -mindepth 1 -maxdepth 1 -type f
   ))
 
   for file in "${files[@]}"
@@ -56,15 +56,15 @@ mongodb_postinstall()
 mongodb_set_architecture()
 {
   case "$(os_arch_capable)" in
-    i386|i686)
+    (i386|i686)
       architecture="i686"
       ;;
 
-    x86_64)
+    (x86_64)
       architecture="x86_64"
       ;;
 
-    *)
+    (*)
       if [[ "$action" = *install ]] ; then
         fail "Unhandled architecture: $HOSTTYPE for ${extension} ${action}"
       fi
@@ -75,22 +75,22 @@ mongodb_set_architecture()
 mongodb_set_os()
 {
   case "$MACHTYPE" in
-    *linux*)
+    (*linux*)
       os="linux"
       ;;
 
-    *darwin*)
+    (*darwin*)
       os="osx"
       ;;
 
-    *solaris*)
+    (*solaris*)
       os="sunos5"
       if [[ "$architecture" = "i686" ]] ; then
         architecture="i86pc" # C'mon Solaris, really???
       fi
       ;;
 
-    *)
+    (*)
       if [[ "$action" = *install ]] ; then
         fail "Unhandled operating system: $MACHTYPE for ${extension} ${action}"
       fi
@@ -98,3 +98,7 @@ mongodb_set_os()
   esac
 }
 
+mongodb_backup()
+{
+  true # TODO: Implement this
+}
