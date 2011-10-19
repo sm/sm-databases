@@ -1,5 +1,7 @@
 #!/bin/sh
 
+typeset -g architecture os
+
 mongodb_initialize()
 {
   # The binary downloads are customized based on OS and Arch.
