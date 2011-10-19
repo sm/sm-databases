@@ -100,13 +100,16 @@ mongodb_backup()
 
 mongodb_setup_init()
 {
-  template install "mongodb/init.d" to "${init_scripts_path}"
+  template install "mongodb/init.d" to "${init_scripts_path}/${extension}"
+
   files chmod a+x "${init_scripts_path}/${extension}"
 }
 
 mongodb_conf()
 {
+  path create "${confd_path}/${extension}"
+
   template install "mongodb.conf" \
-    to "${init_scripts_path}/${extension}/${extension}.conf"
+    to "${confd_path}/${extension}/${extension}.conf"
 }
 
