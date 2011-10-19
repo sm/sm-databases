@@ -125,6 +125,6 @@ mongodb_conf()
 
 mongodb_start()
 {
-  mongodb ${service_flags[@]}
+  mongod ${service_flags[@]}
 }
 
