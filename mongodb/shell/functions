@@ -8,9 +8,13 @@ mongodb_initialize()
   service_binary="${active_path}/bin/mongod"
   service_cli_binary="${active_path}/bin/mongo"
   service_flags+=(
-  --dbpath ${service_db_path}
-  --pidfilepath ${service_pid_file}
+  --dbpath "${service_db_path}"
+  --pidfilepath "${service_pid_file}"
+  --bind_ip 0.0.0.0
+  --logpath "${service_log_path}/mongodb.log"
+  --logappend
   )
+  # TODO: Allow: --replSet foo run
 
   mongodb_set_architecture
   mongodb_set_os
@@ -129,4 +133,5 @@ mongodb_start()
 {
   mongod ${service_flags[@]}
 }
+
 
