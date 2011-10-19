@@ -51,7 +51,7 @@ mongodb_postinstall()
 
 mongodb_set_architecture()
 {
-  case "$(os_arch_capable)" in
+  case "$(os arch capable)" in
     (i386|i686)
       architecture="i686"
       ;;
