@@ -5,6 +5,13 @@ typeset -g architecture os
 mongodb_initialize()
 {
   # The binary downloads are customized based on OS and Arch.
+  service_binary="${active_path}/bin/mongod"
+  service_cli_binary="${active_path}/bin/mongo"
+  service_flags+=(
+  --dbpath ${service_data_path}
+  --pidfilepath ${service_pid_file}
+  )
+
   mongodb_set_architecture
   mongodb_set_os
 }
@@ -105,7 +112,6 @@ mongodb_setup_init()
   template seed "${init_scripts_path}/${extension}" \
     sm_path "$sm_path"
 
-
   files chmod a+x "${init_scripts_path}/${extension}"
 }
 
@@ -115,5 +121,10 @@ mongodb_conf()
 
   template install "mongodb/mongodb.conf" \
     to "${confd_path}/${extension}/${extension}.conf"
+}
+
+mongodb_start()
+{
+  mongodb ${service_flags[@]}
 }
 
