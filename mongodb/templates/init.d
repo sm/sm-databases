@@ -17,20 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#
-# Initialize the BDSM framework for use in this script.
-#
-source "{{modules_path}}/bash/core/initialize"
-
-#
-# Set the service extension name
-#
-export extension="{{extension}}"
-
-#
-# Load the service module.
-#
-modules include api/service
-
-service_init_d
+{{sm_path}/bin/sm mongodb "$@"
 

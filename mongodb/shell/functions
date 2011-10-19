@@ -102,6 +102,10 @@ mongodb_setup_init()
 {
   template install "mongodb/init.d" to "${init_scripts_path}/${extension}"
 
+  template seed "${init_scripts_path}/${extension}" \
+    sm_path "$sm_path"
+
+
   files chmod a+x "${init_scripts_path}/${extension}"
 }
 
@@ -109,7 +113,7 @@ mongodb_conf()
 {
   path create "${confd_path}/${extension}"
 
-  template install "mongodb.conf" \
+  template install "mongodb/mongodb.conf" \
     to "${confd_path}/${extension}/${extension}.conf"
 }
 
