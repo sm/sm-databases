@@ -53,7 +53,7 @@ mongodb_postinstall()
 
 mongodb_set_architecture()
 {
-  case "$(os arch capable)" in
+  case $(os arch capable) in
     (i386|i686)
       architecture="i686"
       ;;
@@ -65,7 +65,7 @@ mongodb_set_architecture()
     (*)
       if [[ "$action" = *install ]]
       then
-        fail "Unhandled architecture: $HOSTTYPE for ${extension} ${action}"
+        log fail "Unhandled architecture: $HOSTTYPE for ${extension} ${action}"
       fi
       ;;
   esac
@@ -87,7 +87,7 @@ mongodb_set_os()
       ;;
     (*)
       if [[ "$action" = *install ]] ; then
-        fail "Unhandled operating system: $MACHTYPE for ${extension} ${action}"
+        log fail "Unhandled operating system: $MACHTYPE for ${extension} ${action}"
       fi
       ;;
   esac
