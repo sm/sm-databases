@@ -73,7 +73,7 @@ mongodb_set_architecture()
 
 mongodb_set_os()
 {
-  case "$MACHTYPE" in
+  case $(os type) in
     (*linux*)
       os="linux"
       ;;
