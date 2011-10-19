@@ -45,12 +45,8 @@ mongodb_install()
 
 mongodb_postinstall()
 {
-  if path exists "${install_base_path}"
-  then
-    return 0
-  else
-    activate_package "${package_name}" "${package_version}"
-  fi
+  if ! path exists "${install_base_path}"
+  then activate_package "${package_name}" "${package_version}" ; fi
 }
 
 mongodb_set_architecture()
@@ -65,7 +61,8 @@ mongodb_set_architecture()
       ;;
 
     (*)
-      if [[ "$action" = *install ]] ; then
+      if [[ "$action" = *install ]]
+      then
         fail "Unhandled architecture: $HOSTTYPE for ${extension} ${action}"
       fi
       ;;
@@ -78,18 +75,14 @@ mongodb_set_os()
     (*linux*)
       os="linux"
       ;;
-
     (*darwin*)
       os="osx"
       ;;
-
     (*solaris*)
       os="sunos5"
-      if [[ "$architecture" = "i686" ]] ; then
-        architecture="i86pc" # C'mon Solaris, really???
-      fi
+      if [[ "$architecture" = "i686" ]]
+      then architecture="i86pc" ; fi # C'mon Solaris, really???
       ;;
-
     (*)
       if [[ "$action" = *install ]] ; then
         fail "Unhandled operating system: $MACHTYPE for ${extension} ${action}"
@@ -102,3 +95,16 @@ mongodb_backup()
 {
   true # TODO: Implement this
 }
+
+mongodb_setup_init()
+{
+  template install "mongodb/init.d" to "${init_scripts_path}"
+  files chmod a+x "${init_scripts_path}/${extension}"
+}
+
+mongodb_configure()
+{
+  template install "mongodb.conf" \
+    to "${init_scripts_path}/${extension}/${extension}.conf"
+}
+
