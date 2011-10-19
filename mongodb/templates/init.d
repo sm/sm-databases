@@ -17,5 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{sm_path}/bin/sm mongodb "$@"
+{{sm_path}}/bin/sm mongodb "$@"
 
