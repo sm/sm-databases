@@ -104,7 +104,7 @@ mongodb_setup_init()
   files chmod a+x "${init_scripts_path}/${extension}"
 }
 
-mongodb_configure()
+mongodb_conf()
 {
   template install "mongodb.conf" \
     to "${init_scripts_path}/${extension}/${extension}.conf"
