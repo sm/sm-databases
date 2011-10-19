@@ -8,7 +8,7 @@ mongodb_initialize()
   service_binary="${active_path}/bin/mongod"
   service_cli_binary="${active_path}/bin/mongo"
   service_flags+=(
-  --dbpath ${service_data_path}
+  --dbpath ${service_db_path}
   --pidfilepath ${service_pid_file}
   )
 
@@ -54,6 +54,8 @@ mongodb_install()
 
 mongodb_postinstall()
 {
+  path create ${service_db_path}
+
   if ! path exists "${install_base_path}"
   then activate_package "${package_name}" "${package_version}" ; fi
 }
