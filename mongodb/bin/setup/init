@@ -1,0 +1,7 @@
+#!/bin/sh
+
+template install "mongodb/init.d" to "${init_scripts_path}/${extension}"
+
+template seed "${init_scripts_path}/${extension}" sm_path "$sm_path"
+
+files chmod a+x "${init_scripts_path}/${extension}"

@@ -10,7 +10,7 @@ mongodb_initialize()
   service_flags+=(
   --dbpath "${service_db_path}"
   --pidfilepath "${service_pid_file}"
-  --bind_ip 0.0.0.0
+  --bind_ip
   --logpath "${service_log_path}/mongodb.log"
   --logappend
   )
@@ -109,24 +109,6 @@ mongodb_set_os()
 mongodb_backup()
 {
   true # TODO: Implement this
-}
-
-mongodb_setup_init()
-{
-  template install "mongodb/init.d" to "${init_scripts_path}/${extension}"
-
-  template seed "${init_scripts_path}/${extension}" \
-    sm_path "$sm_path"
-
-  files chmod a+x "${init_scripts_path}/${extension}"
-}
-
-mongodb_conf()
-{
-  path create "${confd_path}/${extension}"
-
-  template install "mongodb/mongodb.conf" \
-    to "${confd_path}/${extension}/${extension}.conf"
 }
 
 mongodb_start()

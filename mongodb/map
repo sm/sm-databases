@@ -2,3 +2,4 @@ backup=mongodb_backup()
 setup=setup
 setup/init=mongodb_setup_init()
 configure=mongodb_conf()
+start=service/start

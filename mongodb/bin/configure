@@ -1,0 +1,6 @@
+#!/bin/sh
+
+path create "${confd_path}/${extension}"
+
+template install "mongodb/mongodb.conf" \
+           to "${confd_path}/${extension}/${extension}.conf"
