@@ -48,6 +48,8 @@ redis_install()
 
 redis_service_setup()
 {
+  path create "${service_log_path}"
+
   if file is nonempty "${service_config_file}"
   then
     log "${service_config_file} already exists, not overwriting."
@@ -75,8 +77,6 @@ redis_service_setup()
 
 redis_status()
 {
-  service status
-
   log "  pidfile: $(awk '/^pidfile/{print $2}' ${service_config_file})"
   log "  logfile: $(awk '/^logfile/{print $2}' ${service_config_file})"
   log "  dbfile: $(awk '/^dbfilename/{print $2}' ${service_config_file})"
