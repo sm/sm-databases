@@ -1,4 +1,0 @@
-#!/bin/sh
-
-#redis_postinstall
-redis_service_setup
