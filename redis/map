@@ -1,4 +1,1 @@
-conf/configure=conf/configure
-conf/edit=conf/edit
-conf/help=conf/help
-
+config=config/configure
