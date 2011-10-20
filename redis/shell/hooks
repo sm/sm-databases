@@ -34,7 +34,7 @@ redis_install()
 
 redis_service_setup()
 {
-  path create "${service_log_path}"
+  paths create "${service_log_path}" "${service_db_path}/active"
 
   if file is nonempty "${service_config_file}"
   then
