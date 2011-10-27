@@ -159,19 +159,25 @@ mysql_postinstall()
   log "Configuring mysql server."
 
   # TODO: Is this not done in package_install ??? vvv
-  link --force "${service_data_path}" to "${service_data_path%\/*}/data"
+  file symlink force \
+    from "${service_data_path}" \
+    to "${service_data_path%\/*}/data"
 
-  if file_is_nonempty "/etc/mysql/my.cnf"
+  if file is nonempty "/etc/mysql/my.cnf"
   then
     log "Skipping /etc/mysql/my.cnf as it already exists, use bdsm mysql configure to override later."
   else
     # TODO: Determine which .cnf file to grab based on system resources.
     file="${source_path}/${package_dir}/support-files/my-medium.cnf"
-    if file_is_nonempty "${file}"
+
+    if file is nonempty "${file}"
     then
       log "Installing my.cnf to /etc/mysql"
-      paths create "/etc/mysql"
-      files copy force from "${file}" to "/etc/mysql/my.cnf"
+      path create "/etc/mysql"
+
+      file copy force \
+        from "${file}" \
+        to "/etc/mysql/my.cnf"
     else
       error "${file} missing, not setting up /etc/mysql/my.cnf"
     fi
@@ -183,12 +189,11 @@ mysql_postinstall()
 
   paths create "$service_data_path" "$log_path" "/etc/mysql/"
 
-  paths chown recursive "$package_user" "$service_data_path"
+  path chown recursive "$package_user" "$service_data_path"
 
-  paths chmod recursive 0700 "$service_data_path"
+  path chmod recursive 0700 "$service_data_path"
 
   mysql_init
-
 }
 
 mysql_init_script()
