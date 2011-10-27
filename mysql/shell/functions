@@ -1,13 +1,12 @@
 #!/bin/sh
 
-# TODO: deal with mysql version_greater_than "5.5", eg. cmake etc...
-# This function must: configure, build, install to ${install_path}
-# TODO: adjust this for new cmake install method.
-# http://dev.mysql.com/doc/refman/5.5/en/source-configuration-options.html
-# http://dev.mysql.com/doc/refman/5.5/en/installing-source-distribution.html
+# TODO: Requirements: gcc 4.2.1 or later, readline
 
 mysql_initialize()
 {
+  typeset -g sudo
+  typeset -ga profiles
+
   if user is root
   then
     sudo=""
@@ -25,29 +24,12 @@ mysql_initialize()
     fi
   else
     sudo="sudo"
-
-    : \
-      "${profiles:=("$HOME/.bash_profile" "$HOME/.bashrc")}"
+    true "${profiles:=("$HOME/.bash_profile" "$HOME/.bashrc")}"
   fi
 
   log_path="$service_data_path/log"
-
-  if [[ "$action" = *install ]]
-  then
-    # TODO: configure flags per OS.
-    # http://dev.mysql.com/doc/refman/5.1/en/source-configuration-options.html
-    configure_flags=(
-    --prefix="${install_path}"
-    --localstatedir="${service_data_path}"
-    --enable-assembler
-    --with-mysqld-ldflags=-all-static
-    --with-charset=utf8
-    --with-collation=utf8_general_ci
-    )
-    export CFLAGS="-O3"
-    export CXX=gcc
-    export CXXFLAGS="-O3 -felide-constructors -fno-exceptions -fno-rtti"
-  fi
+  service_port=3306
+  service_socket=/tmp/mysql.sock
 
   timestamp="$(date +"%Y-%m-%dT%H:%M")"
 
@@ -58,8 +40,61 @@ mysql_prefetch()
   package define \
     base_url "http://mysql.mirrors.pair.com/Downloads/MySQL-${package_version%.*}" \
     target_path "${prefix_path}/${package_name}-${package_version}"
-  # TODO: if package_version >= 5.5, dependencies+=(cmake) and change the url vvv
-  #         http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.15.tar.gz/from/http://mysql.mirrors.pair.com/
+}
+
+mysql_preconfigure()
+{
+  local major_version minor_version
+  typeset -g CFLAGS CXX CXXFLAGS >/dev/null 2>&1
+
+  CFLAGS="-O3"
+  CXX=gcc
+  CXXFLAGS="-O3 -felide-constructors -fno-exceptions -fno-rtti"
+  export CFLAGS CXX CXXFLAGS
+
+  major_version="${package_version%%.*}"
+  minor_version="${package_version%.*}"
+  minor_version="${minor_version#*.}"
+
+  # TODO: configure flags per OS.
+  # http://dev.mysql.com/doc/refman/5.5/en/source-configuration-options.html
+  if (( major_version == 5 && minor_version > 4 )) || (( major_version > 5 ))
+  then
+    if ! command exists cmake
+    then
+      log error "The 'cmake' command is required to build mysql 5.5+, please install cmake and then try again."
+    fi
+    # nonstandard cmake
+    configure_flags=(
+      -DCMAKE_INSTALL_PREFIX="${install_path}"
+      -DMYSQL_DATADIR="${service_data_path}"
+      -DMYSQL_TCP_PORT="${service_port}"
+      -DMYSQL_UNIX_ADDR="${service_socket}"
+      -DWITH_SSL="yes"
+      -DDEFAULT_CHARSET="utf8"
+      -DDEFAULT_COLLATION="utf8_general_ci"
+      -DWITH_UNIT_TESTS=OFF
+      -DWITH_READLINE=yes
+      -DENABLED_LOCAL_INFILE=1
+      # -DWITH_EMBEDDED_SERVER=ON
+      # -DINSTALL_MANDIR="${package_man_path}"
+      # -DINSTALL_DOCDIR="${package_doc_path}"
+      # -DINSTALL_INFODIR="${package_info_path}"
+      # -DSYSCONFDIR="${confd_path???}"
+    )
+
+    configure_command="cmake . ${configure_flags[*]}"
+  else
+    true # standard GNU autotools, the default
+    configure_flags=(
+    --prefix="${install_path}"
+    --localstatedir="${service_data_path}"
+    --enable-assembler
+    --with-mysqld-ldflags=-all-static
+    --with-charset=utf8
+    --with-collation=utf8_general_ci
+    )
+  fi
 }
 
 mysql_init()
