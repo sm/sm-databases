@@ -2,7 +2,6 @@ backup/database=backup/database
 backup/tables=backup/tables
 conf/edit=conf/edit
 conf/help=conf/help
-
 package/help=package/help
 package/install=package/package_install()
 package/uninstall=package/package_uninstall()
@@ -12,3 +11,5 @@ service/restart=service/service_restart()
 service/start=service/service_start()
 service/status=service/service_status()
 service/stop=service/service_stop()
+database/setup=postgresql_database_setup()
+database/init=postgresql_database_setup()

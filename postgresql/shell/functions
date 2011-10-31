@@ -107,7 +107,7 @@ postgresql_kernel_parameters()
 
 postgresql_database_setup()
 {
-  local _file _command
+  local _file _command _initdb_flags
 
   log "Initializing postgresql data directory in $service_data_path"
   path create "${service_data_path}"
@@ -126,7 +126,13 @@ postgresql_database_setup()
 
   if ! path exists "${service_data_path}/data"
   then
-  _command="'$install_path/bin/initdb' --pgdata='${service_data_path}/data' --encoding=utf8 --username=$service_user"
+    _initdb_flags=(
+    --pgdata="'${service_data_path}/data'"
+    --encoding=utf8
+    --locale=C
+    --username=$service_user
+    )
+    _command="'$install_path/bin/initdb ${_initdb_flags[*]}'"
 
     if user is root
     then
