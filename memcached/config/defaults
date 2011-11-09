@@ -1,4 +1,4 @@
-version=1.4.5
+version=1.4.9
 base_url=http://memcached.googlecode.com/files
 archive_format=tar.gz
 website=http://memcached.org/

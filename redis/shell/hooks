@@ -63,8 +63,9 @@ redis_service_setup()
 
 redis_status()
 {
-  log "  pidfile: $(awk '/^pidfile/{print $2}' ${service_config_file})"
-  log "  logfile: $(awk '/^logfile/{print $2}' ${service_config_file})"
-  log "  dbfile: $(awk '/^dbfilename/{print $2}' ${service_config_file})"
+  log "  pid_file: $(awk '/^pidfile /{print $2}' ${service_config_file})"
+  log "  log_file: $(awk '/^logfile /{print $2}' ${service_config_file})"
+  log "  db_path: $(awk '/^dir /{print $2}' ${service_config_file})"
+  log "  db_file: $(awk '/^dbfilename /{print $2}' ${service_config_file})"
 }
 
