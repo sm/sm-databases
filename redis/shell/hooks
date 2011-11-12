@@ -23,11 +23,11 @@ redis_install()
   paths create "${install_path}/bin"
 
   log "#installing ${package_name} ${package_version}...\n"
-  for file in redis-server redis-cli
+  for file in redis-server redis-cli redis-benchmark redis-check-aof redis-check-dump
   do
     if ! install -b "${_source}${file}" "${install_path}/bin/${file}"
     then
-      fail "${package_name} ${package_version} failed to install (specifically ${file}).\n"
+      log error "${package_name} ${package_version} failed to install (specifically ${file}).\n"
     fi
   done
 }
