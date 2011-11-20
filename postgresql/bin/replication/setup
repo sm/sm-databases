@@ -1,0 +1,33 @@
+#!/bin/sh
+
+NIY "replication setup"
+
+#json get \
+#  string "postgresql/replication/master" \
+#  string "postgresql/replication/slaves"
+
+/etc/init.d/postgresql stop
+
+su - ${service_user} \
+  -c "ssh -o StrictHostKeyChecking=no postgres@${postgresql_replication_master} 'ssh -o StrictHostKeyChecking=no postgres@${hostname} uname'"
+
+files remove /var/db/postgresql/active/wal/*
+
+psql -U ${service_user} -h ${postgresql_replication_master} \
+  -c"select pg_start_backup('`date`');"
+
+su - ${service_user} \
+  -c "touch /var/db/postgresql/active/wal/00000001.history"
+
+su - ${service_user} \
+  -c "rsync -avPz --delete --exclude .svn --exclude recovery.conf --exclude recovery.py --exclude postgresql.conf --exclude pg_log --exclude pg_xlog ${postgresql_replication_master}:/var/db/postgresql/active/data/ /var/db/postgres/active/data/"
+
+find /var/db/postgres/active/data/pg_xlog -type f | xargs rm -f
+
+psql -U ${service_user} -h ${postgresql_replication_master} \
+  -c"select pg_stop_backup();"
+
+/etc/init.d/postgresql start
+
+
+

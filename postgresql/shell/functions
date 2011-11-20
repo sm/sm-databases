@@ -4,26 +4,10 @@ typeset -ga configure_flags >/dev/null 2>&1 # Don't care if declared already.
 
 postgresql_initialize()
 {
-  if user is root
-  then
-    if [[ "${package_user}" = "postgresql" || -z ${package_user} ]]
-    then
-      package_user="postgres"
-    fi
-  else
-    package_user="$USER"
-    prefix_path="$HOME/.sm"
-  fi
-
-  if package is active readline
-  then
-    configure_flags=( --with-readline-dir="${active_path}/lib" )
-  fi
-
   true \
     ${service_port:=5432} \
     ${service_bind_interface:="127.0.0.1"} \
-    ${service_user:=${package_user:-"postgres"}}
+    ${service_user:=${package_user:="postgres"}}
 
   service_binary="${service_bin_path}/pg_ctl"
   service_cli_binary="${service_bin_path}/psql"
@@ -48,77 +32,22 @@ postgresql_prefetch()
     base_url "http://ftp9.us.postgresql.org/pub/mirrors/postgresql/source/v${package_version}"
 }
 
-postgresql_postinstall()
-{
-  user create unless exists \
-    name "${service_user}" shell "/sbin/nologin"
-
-  postgresql_init_script
-  postgresql_conf_d
-  postgresql_kernel_parameters
-
-  log "
-  Installation and configuration of postgresql is now complete.
-
-  * postgresql has been installed to $install_path
-  * postgresql configuration and data files will are in $service_data_path
-  * You can control the postgresql server via the bdsm postgresql extension'
-  * The postgersql superuser is '$service_user', no password.
-  * Use /etc/conf.d/postgresql.conf for server startup customization.
-
-  "
-}
-
-postgresql_conf_update()
-{
-  file replace regex "^.*data_directory.*" \
-    with "data_directory = '${service_db_path}/active/data'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*hba_file.*" \
-    with "hba_file = '${service_db_path}'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*ident_file.*" \
-    with "ident_file = '${service_pid_file}'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*listen_address.*" \
-    with "listen_address = '*'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*max_connections.*" \
-    with "max_connections = '50'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*unix_socket_directory.*" \
-    with "unix_socket_directory = '${service_pid_path}'" \
-    in "${service_data_path}/postgresql.conf"
-
-  file replace regex "^.*shared_buffers.*" \
-    with "shared_buffers = '64MB'" \
-    in "${service_data_path}/postgresql.conf"
-}
-
-postgresql_kernel_parameters()
-{
-  true # TODO: Cross the finish line!!!
-}
-
 postgresql_database_setup()
 {
   local _file _command _initdb_flags
 
   log "Initializing postgresql data directory in $service_data_path"
+
   path create "${service_data_path}"
+
   if [[ ${service_user} == "postgresql" ]]
   then service_user="postgres" ; fi
+
   path chown "$service_user:$service_user" recursively "${service_data_path}"
 
   for file in "${install_path}"/share/*.sample
   do
     _file=${file%%.sample}
-
     file copy force \
       from "$file"
       to "${service_data_path}/${_file##*/}"
@@ -136,9 +65,15 @@ postgresql_database_setup()
 
     if user is root
     then
-      su - "${service_user}" -c "${_command}"
+      if ! su - "${service_user}" -c "${_command}"
+      then
+        __sm.log.warn "initdb failed, command:\n${_command}"
+      fi
     else
-      "${_command}"
+      if ! "${_command}"
+      then
+        __sm.log.warn "initdb failed, command:\n${_command}"
+      fi
     fi
   fi
 
@@ -180,34 +115,10 @@ postgresql_service_setup()
     fi
   done
 
-  postgresql_conf_update
-
   path chown "$service_user:$service_user" recursively "${service_data_path}"
 
   find "${service_data_path}" -type f -print0 | xargs -0 chmod 0600
   find "${service_data_path}" -type d -print0 | xargs -0 chmod 0700
-}
-
-postgresql_init_script()
-{
-  log "Installing Postgresql init script"
-  template install "postgresql/postgresql.init.d" \
-    to "${init_scripts_path}/postgresql" mode 0755
-}
-
-postgresql_conf_d()
-{
-  log "Installing Postgresql conf.d script"
-
-  path create "${confd_path}"
-
-  template install "postgresql/postgresql.conf.d" \
-    to "${confd_path}/postgresql.conf" \
-    mode 0644
-
-  template seed "/etc/conf.d/postgresql.conf" \
-    packages_path "${packages_path}" \
-    service_data_path "${service_data_path}"
 }
 
 postgresql_preconfigure()
@@ -220,22 +131,8 @@ postgresql_preconfigure()
       --with-openssl
       --enable-shared
     )
-
-    if os is darwin
-    then
-      configure_flags[${#configure_flags[@]}]="--with-bonjour"
-    fi
-
     export CFLAGS='-O2'
   fi
-}
-
-# TODO: Enable this at the service level.
-postgresql_reload()
-{
-  log "Reload PostgreSQL Server configuration"
-
-  su - "${service_user}" -c "$control reload -D '${service_data_path}' -s"
 }
 
 
@@ -249,31 +146,8 @@ postgresql_uninstall() {
     /etc/ld.so.conf.d/postgresql.conf \
     "${init_scripts_path}/postgresql"
 
-  user_delete "${package_user}"
+  user delete "${package_user}"
 
   log "Removal of ${package_name} complete."
-
-}
-
-display_install_message()
-{
-  log "
-
-Message:
-
-I am wayneeseguin in #rvm on irc.freenode.net and I am happy to discuss
-improving this script, or field questions.
-
-This script will now:
-
-* Install ${package_name}-${package_version} to $install_path
-* Put init script in place
-* Add postgresql to ldconfig (Linux)
-* Create and initialize data directory
-* Setup profile.d script adding postgresql binaries to the path
-* Add conf.d file allowing for server customization
-* Adjust sysctl kernel parameters for postgresql (Linux)
-
-"
 }
 

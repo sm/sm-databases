@@ -1,0 +1,4 @@
+#!/bin/sh
+
+exec su - "${service_user}" -c "$control start -D '${service_data_path}' -s"
+

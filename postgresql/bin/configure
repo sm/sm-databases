@@ -1,0 +1,67 @@
+#!/bin/sh
+
+user is root || log error "'postgresql configure' may only be run as root."
+
+paths create "/etc/postgresql/" "/var/log/postgresql" "/var/run/postgresql" \
+  "/var/db/postgresql"
+
+json get \
+  string "postgresql/bind" default 0.0.0.0 \
+  string "postgresql/port" default 5432 \
+  string "postgresql/syslog/facility" default "local0" \
+  string "postgresql/databases" default 24 \
+  string "postgresql/max/clients" default 128 \
+  string "postgresql/max/memory" default "128mb" \
+  string "postgresql/max/slow" default 1024 \
+  string "postgresql/append/fsync" default "everysec" \
+  string "postgresql/append/only" default "yes" \
+  string "postgresql/append/file" default "appendonly.aof" \
+  string "postgresql/log/slow" default 10000
+
+template install "postgresql/postgresql.conf" \
+  to "/etc/postgresql/postgresql.conf" \
+  mode 0644 \
+  with \
+    bind "${postgresql_bind}" \
+    port "${postgresql_port}" \
+    syslog_facility "${postgresql_syslog_facility}" \
+    databases "${postgresql_databases}" \
+    max_clients "${postgresql_max_clients}" \
+    max_memory "${postgresql_max_memory}" \
+    max_slow "${postgresql_max_slow}" \
+    append_fsync "${postgresql_append_fsync}" \
+    append_only "${postgresql_append_only}" \
+    append_file "${postgresql_append_file}" \
+    log_slow "${postgresql_log_slow}"
+
+template install "postgresql/init.d" \
+  to "/etc/init.d/postgresql" \
+  mode 0755 \
+  with \
+  service_bin_path "${sm_path}/pkg/active/bin"
+
+template install "postgresql/conf.d" \
+  to "/etc/conf.d/postgresql.conf" \
+  mode 0755 \
+  with \
+  service_bin_path "${sm_path}/pkg/active/bin" \
+  service_pid_file "/var/run/postgresql/postgresql.pid" \
+  service_config_file "/etc/postgresql/postgresql.conf" \
+  service_log_file "/var/log/postgresql/postgresql.log" \
+  service_data_path "${service_data_path}" \
+  port 5432 \
+
+template install "postgresql/monitrc" \
+  to "/etc/monit.d/postgresql.monitrc" \
+  mode 0644 \
+  with \
+  service_bin_path "${sm_path}/pkg/active/bin" \
+  service_pid_file "/var/run/postgresql/postgresql.pid" \
+  service_config_file "/etc/postgresql/postgresql.conf" \
+  service_log_file "/var/log/postgresql/postgresql.log" \
+  start_timeout 30 \
+  port 5432 \
+  bind 127.00.1
+
+monit reload
+

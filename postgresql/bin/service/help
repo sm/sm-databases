@@ -1,9 +1,0 @@
-#!/bin/sh
-
-action "service start" "Starts ${extension} service."
-action "service stop" "Stops ${extension} service."
-action "service restart" "Restart ${extension} service."
-action "service status" "Status of the ${extension} service."
-
-show_help usage
-
