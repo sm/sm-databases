@@ -1,6 +1,0 @@
-#!/bin/sh
-
-typeset -g json_file
-
-json_file="/etc/system.json"
-

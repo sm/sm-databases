@@ -1,4 +1,0 @@
-#!/bin/sh
-
-exec su - "${service_user}" -c "$control restart -D '${service_data_path}' -s"
-
