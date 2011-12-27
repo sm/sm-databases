@@ -1,6 +1,0 @@
-#!/bin/sh
-
-mysql_postinstall
-
-configure_mysql_for_users
-

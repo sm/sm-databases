@@ -1,5 +1,0 @@
-backup=backup
-configure=configure
-
-initialize=initialize
-service/upgrade=service/mysql_upgrade()

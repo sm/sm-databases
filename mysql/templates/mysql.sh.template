@@ -1,6 +1,0 @@
-#!/bin/sh
-
-if [ -s /etc/conf.d/mysql.conf ] ; then
-  . /etc/conf.d/mysql.conf
-  PATH="$PATH:${prefix_path}/bin"
-fi
