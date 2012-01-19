@@ -1,0 +1,10 @@
+#!/bin/sh
+
+credis_preinstall()
+{
+  paths create ${source_path}/include ${source_path}/lib
+
+  file copy from ${source_path}/libcredis.so to ${source_path}/lib/libcredis.so
+
+  file copy from ${source_path}/credis.h to ${source_path}/include/credis.h
+}
