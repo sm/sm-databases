@@ -2,9 +2,11 @@
 
 credis_preinstall()
 {
-  paths create ${source_path}/include ${source_path}/lib
+  path enter ${source_path}/credis-${package_version}
 
-  file copy from ${source_path}/libcredis.so to ${source_path}/lib/libcredis.so
+  paths create include lib
 
-  file copy from ${source_path}/credis.h to ${source_path}/include/credis.h
+  file copy from libcredis.so to lib/libcredis.so
+
+  file copy from credis.h to include/credis.h
 }
