@@ -3,11 +3,10 @@
 path create "${confd_path}/${extension}"
 
 template install "mongodb/mongodb.conf" \
-  to "${confd_path}/${extension}/${extension}.conf"
-
-template seed "${confd_path}/${extension}/${extension}.conf" \
-  prefix_path "${sm_path}/pkg/active/bin" \
-  data_path "${sm_db_path}" \
-  log_path "${sm_log_path}" \
+  to "${confd_path}/${extension}/${extension}.conf" \
+  variables \
+    prefix_path "${sm_path}/pkg/active/bin" \
+    data_path "${sm_db_path}" \
+    log_path "${sm_log_path}" \
 
 
