@@ -1,0 +1,7 @@
+package/install=package/package_install()
+package/uninstall=package/package_uninstall()
+package/update=package/package_update()
+service/restart=service/service_restart()
+service/start=service/service_start()
+service/status=service/service_status()
+service/stop=service/service_stop()

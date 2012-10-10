@@ -1,0 +1,5 @@
+version=1.2.0
+base_url=http://www.apache.org/dist/couchdb/releases/1.2.0
+archive_format=tar.gz
+website=http://couchdb.apache.org/
+package_dependencies=erlang

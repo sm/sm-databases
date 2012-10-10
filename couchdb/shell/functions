@@ -1,0 +1,11 @@
+#!/bin/sh
+
+couchdb_prefetch()
+{
+  package define file "apache-couchdb-${package_version}.tar.gz"
+}
+
+couchdb_postfetch()
+{
+    cd "apache-couchdb-${package_version}"
+}
