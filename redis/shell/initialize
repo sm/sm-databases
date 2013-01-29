@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Redis Configuration.
+true ${service_config_file:="/etc/redis/redis.conf"} ${service_port:="6379"} \
+	${service_bind_interface:="127.0.0.1"}
+
+  service_binary="${active_path}/bin/redis-server"
+  service_cli_binary="${active_path}/bin/redis-cli"
+  service_db_file="${service_db_path}/active/redis.rdb"
+
+  if ! string contains "${service_config_file}" "${service_flags[*]}"
+  then
+    service_flags+=( "${service_config_file}" )
+  fi
+

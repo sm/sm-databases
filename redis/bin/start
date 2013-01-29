@@ -1,0 +1,4 @@
+#!/bin/sh
+
+${service_binary} "${service_config_file}"
+

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+${service_cli_binary} -p ${service_port} shutdown
+
